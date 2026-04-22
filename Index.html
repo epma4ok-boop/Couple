@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <title>Couple Evening Mini App Fixed</title>
+  <meta name="theme-color" content="#121212" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --surface: #171a21;
+      --surface-2: #1e232d;
+      --text: #f2f4f8;
+      --muted: #9aa3b2;
+      --primary: #d06a8b;
+      --primary-strong: #b95376;
+      --line: rgba(255,255,255,0.08);
+      --radius: 18px;
+      --shadow: 0 10px 30px rgba(0,0,0,.28);
+      --app-height: 100dvh;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      background: var(--bg);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Inter, sans-serif;
+      color: var(--text);
+      min-height: var(--app-height);
+      background:
+        radial-gradient(circle at top, rgba(208,106,139,.18), transparent 35%),
+        linear-gradient(180deg, #11141a 0%, #0f1115 100%);
+      overflow-x: hidden;
+    }
+
+    .app {
+      width: 100%;
+      min-height: var(--app-height);
+      padding: max(16px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      align-self: flex-start;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.02);
+    }
+
+    h1 {
+      font-size: clamp(30px, 5vw, 38px);
+      line-height: 1.05;
+      margin: 2px 0 0;
+      letter-spacing: -0.03em;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-title {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .modes, .levels {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 12px;
+      color: var(--text);
+      background: var(--surface);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform .15s ease, background .2s ease, border-color .2s ease, opacity .2s ease;
+      min-height: 54px;
+      width: 100%;
+    }
+
+    button:active { transform: scale(.98); }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+
+    .mode-btn.active, .level-btn.active {
+      background: linear-gradient(180deg, rgba(208,106,139,.22), rgba(208,106,139,.10));
+      border-color: rgba(208,106,139,.55);
+    }
+
+    .primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+      border: 0;
+      min-height: 58px;
+      font-size: 16px;
+      box-shadow: 0 12px 24px rgba(208,106,139,.22);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .actions .wide { grid-column: 1 / -1; }
+
+    .card-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: #f6bfd0;
+      margin-bottom: 10px;
+    }
+
+    .card-heading {
+      font-size: 24px;
+      line-height: 1.15;
+      margin: 0 0 10px;
+    }
+
+    .card-text {
+      color: var(--text);
+      opacity: .94;
+      line-height: 1.55;
+      font-size: 16px;
+    }
+
+    .subnote {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .hidden { display: none; }
+
+    .footer-note {
+      margin-top: auto;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      padding-top: 6px;
+    }
+
+    @media (max-width: 640px) {
+      .modes, .levels, .actions { grid-template-columns: 1fr; }
+      .actions .wide { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="badge">18+ · Только по взаимному согласию</div>
+    <h1>Вечер для двоих</h1>
+    <p class="lead">Мини-приложение внутри Telegram: выберите режим, интенсивность и получите случайную карточку с вопросом или заданием для пары.</p>
+
+    <section class="panel">
+      <div class="section-title">Режим</div>
+      <div class="grid modes">
+        <button type="button" class="mode-btn active" data-mode="talk">Интимные разговоры</button>
+        <button type="button" class="mode-btn" data-mode="tender">Нежность</button>
+        <button type="button" class="mode-btn" data-mode="passion">Страсть</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">Интенсивность</div>
+      <div class="grid levels">
+        <button type="button" class="level-btn active" data-level="soft">Мягко</button>
+        <button type="button" class="level-btn" data-level="medium">Средне</button>
+        <button type="button" class="level-btn" data-level="bold">Смело</button>
+      </div>
+    </section>
+
+    <button type="button" id="drawBtn" class="primary">Получить карточку</button>
+
+    <section id="cardPanel" class="panel hidden" aria-live="polite">
+      <div class="card-title" id="cardMeta">Интимные разговоры · Мягко</div>
+      <h2 class="card-heading" id="cardHeading">Название карточки</h2>
+      <div class="card-text" id="cardText"></div>
+      <div class="subnote">Любую карточку можно пропустить. Если что-то некомфортно, переключитесь на более мягкий уровень.</div>
+      <div class="actions">
+        <button type="button" id="againBtn" class="wide">🎲 Ещё карточка</button>
+        <button type="button" id="softerBtn">⬇️ Мягче</button>
+        <button type="button" id="bolderBtn">⬆️ Смелее</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">Границы</div>
+      <div class="card-text" style="font-size:15px; color: var(--muted);">
+        Перед началом быстро договоритесь: что точно ок, что под вопросом и что стоп-тема. Никаких фото, видео и личных данных не нужно.
+      </div>
+    </section>
+
+    <div class="footer-note">Исправленная версия для Telegram Mini App и обычного мобильного браузера.</div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+
+      function applyViewport() {
+        const height = tg && tg.viewportHeight ? tg.viewportHeight : window.innerHeight;
+        document.documentElement.style.setProperty('--app-height', `${height}px`);
+      }
+
+      if (tg) {
+        tg.ready();
+        tg.expand();
+        if (typeof tg.requestFullscreen === 'function') {
+          try { tg.requestFullscreen(); } catch (e) {}
+        }
+        if (tg.MainButton) tg.MainButton.hide();
+        if (tg.setHeaderColor) {
+          try { tg.setHeaderColor('#0f1115'); } catch (e) {}
+        }
+        if (tg.setBackgroundColor) {
+          try { tg.setBackgroundColor('#0f1115'); } catch (e) {}
+        }
+      }
+
+      applyViewport();
+      window.addEventListener('resize', applyViewport);
+      if (tg && typeof tg.onEvent === 'function') {
+        tg.onEvent('viewportChanged', applyViewport);
+      }
+
+      const DATA = {
+        talk: {
+          soft: [
+            { title: 'Теплый вопрос', text: 'Назовите по одной привычке друг друга, которая дарит вам чувство близости.' },
+            { title: 'Воспоминание', text: 'Вспомните вечер, когда вам было особенно спокойно вместе, и расскажите почему.' },
+            { title: 'Честный комплимент', text: 'Скажите партнеру, что в его поведении делает отношения для вас уютнее.' }
+          ],
+          medium: [
+            { title: 'О желаниях', text: 'Обсудите, чего вам хотелось бы чаще в ваших вечерах вдвоем.' },
+            { title: 'Про близость', text: 'Спросите друг друга: в какие моменты я кажусь тебе особенно притягательным(ой)?' },
+            { title: 'Про границы', text: 'Назовите одну вещь, которая вам приятна, и одну, где вам нужна особая деликатность.' }
+          ],
+          bold: [
+            { title: 'Смелый вопрос', text: 'Поделитесь одной идеей для более откровенного, но комфортного вечера вдвоем.' },
+            { title: 'Фантазия без давления', text: 'Расскажите о своем желании, которое кажется вам волнующим, и уточните, что в нем для вас главное.' },
+            { title: 'Намерение на вечер', text: 'Скажите партнеру, какой атмосферы вам хочется: больше нежности, больше игры или больше страсти.' }
+          ]
+        },
+        tender: {
+          soft: [
+            { title: 'Минутное объятие', text: 'Обнимайте друг друга молча одну минуту, не отвлекаясь на телефон.' },
+            { title: 'Комплимент глазами', text: 'Посмотрите друг на друга 20 секунд, а затем скажите по одному нежному комплименту.' },
+            { title: 'Тихий вечер', text: 'Сядьте рядом так, чтобы касаться друг друга, и просто побудьте в тишине одну минуту.' }
+          ],
+          medium: [
+            { title: 'Медленный момент', text: 'По очереди подарите друг другу минуту неспешных объятий или нежных прикосновений в комфортной форме.' },
+            { title: 'Три слова', text: 'Назовите три слова, которыми вы бы описали партнера в особенно близкий вечер.' },
+            { title: 'Нежная просьба', text: 'Попросите партнера о маленьком нежном действии, которое вам сейчас хотелось бы получить.' }
+          ],
+          bold: [
+            { title: 'Шепотом', text: 'Скажите партнеру на ухо, что в нем сегодня кажется вам особенно манящим.' },
+            { title: 'Замедление', text: 'Проведите две минуты, полностью сосредоточившись друг на друге и убрав все отвлекающее.' },
+            { title: 'Выбор прикосновения', text: 'Спросите: где тебе сейчас особенно хочется почувствовать нежность в допустимых для вас границах?' }
+          ]
+        },
+        passion: {
+          soft: [
+            { title: 'Искра', text: 'Скажите партнеру, что в нем сегодня кажется вам особенно притягательным.' },
+            { title: 'Намек', text: 'Опишите одним предложением, какой вечер сегодня был бы для вас особенно волнующим.' },
+            { title: 'Взгляд', text: 'Задержите взгляд друг на друге чуть дольше обычного и поделитесь ощущением от этого момента.' }
+          ],
+          medium: [
+            { title: 'Желание', text: 'По очереди назовите по одному желанию на этот вечер в рамках вашего комфорта.' },
+            { title: 'Игра выбора', text: 'Выберите вдвоем: вам сегодня хочется больше интриги, больше прикосновений или больше откровенного разговора?' },
+            { title: 'Словами', text: 'Скажите партнеру, что именно в его поведении или внешности вас сильнее всего волнует, не переходя ваших границ.' }
+          ],
+          bold: [
+            { title: 'Сценарий на вечер', text: 'Каждый предлагает по одной смелой, но комфортной идее, а затем выбирайте ту, которая нравится обоим.' },
+            { title: 'Честная страсть', text: 'Назовите, что помогает вам сильнее раскрываться в страстной атмосфере: слова, инициатива, игра или тактильность.' },
+            { title: 'Общее решение', text: 'Обсудите один более смелый вариант продолжения вечера и подтвердите его только при полном взаимном согласии.' }
+          ]
+        }
+      };
+
+      const modeNames = {
+        talk: 'Интимные разговоры',
+        tender: 'Нежность',
+        passion: 'Страсть'
+      };
+
+      const levelNames = {
+        soft: 'Мягко',
+        medium: 'Средне',
+        bold: 'Смело'
+      };
+
+      const state = {
+        mode: 'talk',
+        level: 'soft',
+        used: {}
+      };
+
+      const modeButtons = Array.from(document.querySelectorAll('.mode-btn'));
+      const levelButtons = Array.from(document.querySelectorAll('.level-btn'));
+      const drawBtn = document.getElementById('drawBtn');
+      const againBtn = document.getElementById('againBtn');
+      const softerBtn = document.getElementById('softerBtn');
+      const bolderBtn = document.getElementById('bolderBtn');
+      const cardPanel = document.getElementById('cardPanel');
+      const cardMeta = document.getElementById('cardMeta');
+      const cardHeading = document.getElementById('cardHeading');
+      const cardText = document.getElementById('cardText');
+
+      function setActive(group, value, attr) {
+        group.forEach((btn) => {
+          const isActive = btn.dataset[attr] === value;
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+      }
+
+      function usedKey(mode, level) {
+        return `${mode}:${level}`;
+      }
+
+      function pickRandomCard(mode, level) {
+        const list = DATA[mode][level];
+        const key = usedKey(mode, level);
+
+        if (!state.used[key]) state.used[key] = [];
+
+        let available = list.map((_, i) => i).filter((i) => !state.used[key].includes(i));
+        if (available.length === 0) {
+          state.used[key] = [];
+          available = list.map((_, i) => i);
+        }
+
+        const index = available[Math.floor(Math.random() * available.length)];
+        state.used[key].push(index);
+        return list[index];
+      }
+
+      function vibrate() {
+        if (navigator.vibrate) navigator.vibrate(20);
+        if (tg && typeof tg.HapticFeedback?.impactOccurred === 'function') {
+          try { tg.HapticFeedback.impactOccurred('light'); } catch (e) {}
+        }
+      }
+
+      function renderCard() {
+        const card = pickRandomCard(state.mode, state.level);
+        cardMeta.textContent = `${modeNames[state.mode]} · ${levelNames[state.level]}`;
+        cardHeading.textContent = card.title;
+        cardText.textContent = card.text;
+        cardPanel.classList.remove('hidden');
+        vibrate();
+        cardPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function softer(level) {
+        return level === 'bold' ? 'medium' : 'soft';
+      }
+
+      function bolder(level) {
+        return level === 'soft' ? 'medium' : 'bold';
+      }
+
+      modeButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.mode = btn.dataset.mode;
+          setActive(modeButtons, state.mode, 'mode');
+          vibrate();
+        });
+      });
+
+      levelButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.level = btn.dataset.level;
+          setActive(levelButtons, state.level, 'level');
+          vibrate();
+        });
+      });
+
+      drawBtn.addEventListener('click', renderCard);
+      againBtn.addEventListener('click', renderCard);
+
+      softerBtn.addEventListener('click', () => {
+        state.level = softer(state.level);
+        setActive(levelButtons, state.level, 'level');
+        renderCard();
+      });
+
+      bolderBtn.addEventListener('click', () => {
+        state.level = bolder(state.level);
+        setActive(levelButtons, state.level, 'level');
+        renderCard();
+      });
+
+      setActive(modeButtons, state.mode, 'mode');
+      setActive(levelButtons, state.level, 'level');
+    });
+  </script>
+</body>
+</html>
