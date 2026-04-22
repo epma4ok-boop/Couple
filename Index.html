@@ -396,4 +396,12 @@
       safeTelegramInit();
       applyViewport();
       window.addEventListener('resize', applyViewport);
-      
+      if (tg && tg.onEvent) {
+        try { tg.onEvent('viewportChanged', applyViewport); } catch (e) {}
+      }
+      setActive(modeButtons, state.mode, 'mode');
+      setActive(levelButtons, state.level, 'level');
+    })();
+  </script>
+</body>
+</html>
