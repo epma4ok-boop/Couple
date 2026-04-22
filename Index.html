@@ -2,15 +2,14 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Couple Evening Mini App Fixed</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Вечер для двоих</title>
   <meta name="theme-color" content="#121212" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
       --bg: #0f1115;
       --surface: #171a21;
-      --surface-2: #1e232d;
       --text: #f2f4f8;
       --muted: #9aa3b2;
       --primary: #d06a8b;
@@ -18,40 +17,27 @@
       --line: rgba(255,255,255,0.08);
       --radius: 18px;
       --shadow: 0 10px 30px rgba(0,0,0,.28);
-      --app-height: 100dvh;
+      --app-height: 100vh;
     }
-
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-    html, body {
-      margin: 0;
-      width: 100%;
-      min-height: 100%;
-      background: var(--bg);
-    }
-
+    html, body { margin: 0; width: 100%; min-height: 100%; background: var(--bg); }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Inter, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Inter, Arial, sans-serif;
       color: var(--text);
       min-height: var(--app-height);
-      background:
-        radial-gradient(circle at top, rgba(208,106,139,.18), transparent 35%),
-        linear-gradient(180deg, #11141a 0%, #0f1115 100%);
+      background: radial-gradient(circle at top, rgba(208,106,139,.18), transparent 35%), linear-gradient(180deg, #11141a 0%, #0f1115 100%);
       overflow-x: hidden;
     }
-
     .app {
       width: 100%;
       min-height: var(--app-height);
-      padding: max(16px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+      padding: 16px 16px 24px;
       display: flex;
       flex-direction: column;
       gap: 14px;
     }
-
     .badge {
       display: inline-flex;
-      gap: 8px;
       align-items: center;
       align-self: flex-start;
       font-size: 12px;
@@ -61,21 +47,18 @@
       border-radius: 999px;
       background: rgba(255,255,255,.02);
     }
-
     h1 {
-      font-size: clamp(30px, 5vw, 38px);
+      font-size: 32px;
       line-height: 1.05;
       margin: 2px 0 0;
       letter-spacing: -0.03em;
     }
-
     .lead {
       color: var(--muted);
       font-size: 15px;
       line-height: 1.5;
       margin: 0;
     }
-
     .panel {
       background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
       border: 1px solid var(--line);
@@ -83,7 +66,6 @@
       padding: 16px;
       box-shadow: var(--shadow);
     }
-
     .section-title {
       font-size: 13px;
       color: var(--muted);
@@ -91,39 +73,26 @@
       text-transform: uppercase;
       letter-spacing: .08em;
     }
-
-    .grid {
-      display: grid;
-      gap: 10px;
-    }
-
-    .modes, .levels {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
+    .grid { display: grid; gap: 10px; }
+    .modes, .levels { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     button {
       appearance: none;
       border: 1px solid var(--line);
       border-radius: 16px;
       padding: 14px 12px;
       color: var(--text);
-      background: var(--surface);
+      background: #171a21;
       font-weight: 600;
       font-size: 14px;
       cursor: pointer;
-      transition: transform .15s ease, background .2s ease, border-color .2s ease, opacity .2s ease;
       min-height: 54px;
       width: 100%;
     }
-
     button:active { transform: scale(.98); }
-    button:disabled { opacity: .5; cursor: not-allowed; }
-
     .mode-btn.active, .level-btn.active {
       background: linear-gradient(180deg, rgba(208,106,139,.22), rgba(208,106,139,.10));
       border-color: rgba(208,106,139,.55);
     }
-
     .primary {
       width: 100%;
       background: linear-gradient(135deg, var(--primary), var(--primary-strong));
@@ -132,16 +101,13 @@
       font-size: 16px;
       box-shadow: 0 12px 24px rgba(208,106,139,.22);
     }
-
     .actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       margin-top: 12px;
     }
-
     .actions .wide { grid-column: 1 / -1; }
-
     .card-title {
       font-size: 13px;
       text-transform: uppercase;
@@ -149,20 +115,17 @@
       color: #f6bfd0;
       margin-bottom: 10px;
     }
-
     .card-heading {
       font-size: 24px;
       line-height: 1.15;
       margin: 0 0 10px;
     }
-
     .card-text {
       color: var(--text);
       opacity: .94;
       line-height: 1.55;
       font-size: 16px;
     }
-
     .subnote {
       margin-top: 14px;
       padding-top: 12px;
@@ -171,9 +134,7 @@
       font-size: 13px;
       line-height: 1.4;
     }
-
     .hidden { display: none; }
-
     .footer-note {
       margin-top: auto;
       color: var(--muted);
@@ -181,7 +142,6 @@
       text-align: center;
       padding-top: 6px;
     }
-
     @media (max-width: 640px) {
       .modes, .levels, .actions { grid-template-columns: 1fr; }
       .actions .wide { grid-column: auto; }
@@ -192,7 +152,7 @@
   <main class="app">
     <div class="badge">18+ · Только по взаимному согласию</div>
     <h1>Вечер для двоих</h1>
-    <p class="lead">Мини-приложение внутри Telegram: выберите режим, интенсивность и получите случайную карточку с вопросом или заданием для пары.</p>
+    <p class="lead">Выберите режим, интенсивность и получите случайную карточку с вопросом или заданием для пары.</p>
 
     <section class="panel">
       <div class="section-title">Режим</div>
@@ -220,9 +180,9 @@
       <div class="card-text" id="cardText"></div>
       <div class="subnote">Любую карточку можно пропустить. Если что-то некомфортно, переключитесь на более мягкий уровень.</div>
       <div class="actions">
-        <button type="button" id="againBtn" class="wide">🎲 Ещё карточка</button>
-        <button type="button" id="softerBtn">⬇️ Мягче</button>
-        <button type="button" id="bolderBtn">⬆️ Смелее</button>
+        <button type="button" id="againBtn" class="wide">Ещё карточка</button>
+        <button type="button" id="softerBtn">Мягче</button>
+        <button type="button" id="bolderBtn">Смелее</button>
       </div>
     </section>
 
@@ -233,40 +193,40 @@
       </div>
     </section>
 
-    <div class="footer-note">Исправленная версия для Telegram Mini App и обычного мобильного браузера.</div>
+    <div class="footer-note">Версия с упрощённой совместимостью.</div>
   </main>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    (function () {
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 
       function applyViewport() {
-        const height = tg && tg.viewportHeight ? tg.viewportHeight : window.innerHeight;
-        document.documentElement.style.setProperty('--app-height', `${height}px`);
+        var height = window.innerHeight;
+        if (tg && tg.viewportHeight) height = tg.viewportHeight;
+        document.documentElement.style.setProperty('--app-height', height + 'px');
       }
 
-      if (tg) {
-        tg.ready();
-        tg.expand();
-        if (typeof tg.requestFullscreen === 'function') {
-          try { tg.requestFullscreen(); } catch (e) {}
-        }
-        if (tg.MainButton) tg.MainButton.hide();
-        if (tg.setHeaderColor) {
-          try { tg.setHeaderColor('#0f1115'); } catch (e) {}
-        }
-        if (tg.setBackgroundColor) {
-          try { tg.setBackgroundColor('#0f1115'); } catch (e) {}
-        }
+      function safeTelegramInit() {
+        if (!tg) return;
+        try { tg.ready(); } catch (e) {}
+        try { tg.expand(); } catch (e) {}
+        try { if (tg.MainButton) tg.MainButton.hide(); } catch (e) {}
+        try { if (tg.setHeaderColor) tg.setHeaderColor('#0f1115'); } catch (e) {}
+        try { if (tg.setBackgroundColor) tg.setBackgroundColor('#0f1115'); } catch (e) {}
       }
 
-      applyViewport();
-      window.addEventListener('resize', applyViewport);
-      if (tg && typeof tg.onEvent === 'function') {
-        tg.onEvent('viewportChanged', applyViewport);
+      function safeHaptic() {
+        try {
+          if (navigator.vibrate) navigator.vibrate(20);
+        } catch (e) {}
+        try {
+          if (tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred) {
+            tg.HapticFeedback.impactOccurred('light');
+          }
+        } catch (e) {}
       }
 
-      const DATA = {
+      var DATA = {
         talk: {
           soft: [
             { title: 'Теплый вопрос', text: 'Назовите по одной привычке друг друга, которая дарит вам чувство близости.' },
@@ -320,123 +280,120 @@
         }
       };
 
-      const modeNames = {
+      var modeNames = {
         talk: 'Интимные разговоры',
         tender: 'Нежность',
         passion: 'Страсть'
       };
 
-      const levelNames = {
+      var levelNames = {
         soft: 'Мягко',
         medium: 'Средне',
         bold: 'Смело'
       };
 
-      const state = {
-        mode: 'talk',
-        level: 'soft',
-        used: {}
-      };
+      var state = { mode: 'talk', level: 'soft', used: {} };
 
-      const modeButtons = Array.from(document.querySelectorAll('.mode-btn'));
-      const levelButtons = Array.from(document.querySelectorAll('.level-btn'));
-      const drawBtn = document.getElementById('drawBtn');
-      const againBtn = document.getElementById('againBtn');
-      const softerBtn = document.getElementById('softerBtn');
-      const bolderBtn = document.getElementById('bolderBtn');
-      const cardPanel = document.getElementById('cardPanel');
-      const cardMeta = document.getElementById('cardMeta');
-      const cardHeading = document.getElementById('cardHeading');
-      const cardText = document.getElementById('cardText');
+      var modeButtons = document.querySelectorAll('.mode-btn');
+      var levelButtons = document.querySelectorAll('.level-btn');
+      var drawBtn = document.getElementById('drawBtn');
+      var againBtn = document.getElementById('againBtn');
+      var softerBtn = document.getElementById('softerBtn');
+      var bolderBtn = document.getElementById('bolderBtn');
+      var cardPanel = document.getElementById('cardPanel');
+      var cardMeta = document.getElementById('cardMeta');
+      var cardHeading = document.getElementById('cardHeading');
+      var cardText = document.getElementById('cardText');
 
-      function setActive(group, value, attr) {
-        group.forEach((btn) => {
-          const isActive = btn.dataset[attr] === value;
-          btn.classList.toggle('active', isActive);
+      function setActive(buttons, value, attr) {
+        for (var i = 0; i < buttons.length; i++) {
+          var btn = buttons[i];
+          var isActive = btn.getAttribute('data-' + attr) === value;
+          if (isActive) btn.classList.add('active'); else btn.classList.remove('active');
           btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-        });
+        }
       }
 
-      function usedKey(mode, level) {
-        return `${mode}:${level}`;
+      function getUsedKey(mode, level) {
+        return mode + ':' + level;
       }
 
       function pickRandomCard(mode, level) {
-        const list = DATA[mode][level];
-        const key = usedKey(mode, level);
+        var list = DATA[mode][level];
+        var key = getUsedKey(mode, level);
+        var used = state.used[key] || [];
+        var available = [];
+        var i;
 
-        if (!state.used[key]) state.used[key] = [];
-
-        let available = list.map((_, i) => i).filter((i) => !state.used[key].includes(i));
-        if (available.length === 0) {
-          state.used[key] = [];
-          available = list.map((_, i) => i);
+        for (i = 0; i < list.length; i++) {
+          if (used.indexOf(i) === -1) available.push(i);
         }
 
-        const index = available[Math.floor(Math.random() * available.length)];
-        state.used[key].push(index);
+        if (!available.length) {
+          used = [];
+          available = [];
+          for (i = 0; i < list.length; i++) available.push(i);
+        }
+
+        var index = available[Math.floor(Math.random() * available.length)];
+        used.push(index);
+        state.used[key] = used;
         return list[index];
       }
 
-      function vibrate() {
-        if (navigator.vibrate) navigator.vibrate(20);
-        if (tg && typeof tg.HapticFeedback?.impactOccurred === 'function') {
-          try { tg.HapticFeedback.impactOccurred('light'); } catch (e) {}
-        }
-      }
-
       function renderCard() {
-        const card = pickRandomCard(state.mode, state.level);
-        cardMeta.textContent = `${modeNames[state.mode]} · ${levelNames[state.level]}`;
+        var card = pickRandomCard(state.mode, state.level);
+        cardMeta.textContent = modeNames[state.mode] + ' · ' + levelNames[state.level];
         cardHeading.textContent = card.title;
         cardText.textContent = card.text;
         cardPanel.classList.remove('hidden');
-        vibrate();
-        cardPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        safeHaptic();
       }
 
       function softer(level) {
-        return level === 'bold' ? 'medium' : 'soft';
+        if (level === 'bold') return 'medium';
+        return 'soft';
       }
 
       function bolder(level) {
-        return level === 'soft' ? 'medium' : 'bold';
+        if (level === 'soft') return 'medium';
+        return 'bold';
       }
 
-      modeButtons.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          state.mode = btn.dataset.mode;
+      for (var i = 0; i < modeButtons.length; i++) {
+        modeButtons[i].addEventListener('click', function () {
+          state.mode = this.getAttribute('data-mode');
           setActive(modeButtons, state.mode, 'mode');
-          vibrate();
+          safeHaptic();
         });
-      });
+      }
 
-      levelButtons.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          state.level = btn.dataset.level;
+      for (var j = 0; j < levelButtons.length; j++) {
+        levelButtons[j].addEventListener('click', function () {
+          state.level = this.getAttribute('data-level');
           setActive(levelButtons, state.level, 'level');
-          vibrate();
+          safeHaptic();
         });
-      });
+      }
 
-      drawBtn.addEventListener('click', renderCard);
-      againBtn.addEventListener('click', renderCard);
+      if (drawBtn) drawBtn.addEventListener('click', renderCard);
+      if (againBtn) againBtn.addEventListener('click', renderCard);
+      if (softerBtn) {
+        softerBtn.addEventListener('click', function () {
+          state.level = softer(state.level);
+          setActive(levelButtons, state.level, 'level');
+          renderCard();
+        });
+      }
+      if (bolderBtn) {
+        bolderBtn.addEventListener('click', function () {
+          state.level = bolder(state.level);
+          setActive(levelButtons, state.level, 'level');
+          renderCard();
+        });
+      }
 
-      softerBtn.addEventListener('click', () => {
-        state.level = softer(state.level);
-        setActive(levelButtons, state.level, 'level');
-        renderCard();
-      });
-
-      bolderBtn.addEventListener('click', () => {
-        state.level = bolder(state.level);
-        setActive(levelButtons, state.level, 'level');
-        renderCard();
-      });
-
-      setActive(modeButtons, state.mode, 'mode');
-      setActive(levelButtons, state.level, 'level');
-    });
-  </script>
-</body>
-</html>
+      safeTelegramInit();
+      applyViewport();
+      window.addEventListener('resize', applyViewport);
+      
