@@ -90,17 +90,17 @@ def compute_leaderboard(db: Session, challenge: Challenge):
     return rows
 
 
-@app.get("/")
+@app.get("/api")
 def health():
     return {"status": "ok", "service": "weekup-api"}
 
 
-@app.get("/ping")
+@app.get("/api/ping")
 def ping():
     return {"message": "pong"}
 
 
-@app.post("/auth/telegram")
+@app.post("/api/auth/telegram")
 def auth_telegram(payload: TelegramAuthIn, db: Session = Depends(get_db)):
     user = (
         db.query(User)
@@ -138,7 +138,7 @@ def auth_telegram(payload: TelegramAuthIn, db: Session = Depends(get_db)):
     }
 
 
-@app.post("/challenges")
+@app.post("/api/challenges")
 def create_challenge(payload: ChallengeCreateIn, db: Session = Depends(get_db)):
     get_user_or_404(db, payload.creator_user_id)
 
@@ -196,7 +196,7 @@ def create_challenge(payload: ChallengeCreateIn, db: Session = Depends(get_db)):
     }
 
 
-@app.get("/challenges/{challenge_id}")
+@app.get("/api/challenges/{challenge_id}")
 def get_challenge(challenge_id: str, db: Session = Depends(get_db)):
     challenge = get_challenge_or_404(db, challenge_id)
     members = (
@@ -234,7 +234,7 @@ def get_challenge(challenge_id: str, db: Session = Depends(get_db)):
     }
 
 
-@app.get("/invites/{code}")
+@app.get("/api/invites/{code}")
 def get_invite(code: str, db: Session = Depends(get_db)):
     challenge = db.query(Challenge).filter(Challenge.invite_code == code).first()
     if not challenge:
@@ -257,7 +257,7 @@ def get_invite(code: str, db: Session = Depends(get_db)):
     }
 
 
-@app.post("/invites/{code}/accept")
+@app.post("/api/invites/{code}/accept")
 def accept_invite(code: str, payload: JoinInviteIn, db: Session = Depends(get_db)):
     challenge = db.query(Challenge).filter(Challenge.invite_code == code).first()
     if not challenge:
@@ -311,7 +311,7 @@ def accept_invite(code: str, payload: JoinInviteIn, db: Session = Depends(get_db
     }
 
 
-@app.post("/challenges/{challenge_id}/entries/manual")
+@app.post("/api/challenges/{challenge_id}/entries/manual")
 def add_manual_entry(challenge_id: str, payload: ManualEntryIn, db: Session = Depends(get_db)):
     challenge = get_challenge_or_404(db, challenge_id)
     member = get_member(db, challenge.id, payload.user_id)
@@ -350,7 +350,7 @@ def add_manual_entry(challenge_id: str, payload: ManualEntryIn, db: Session = De
     return {"status": "ok", "message": "Manual entry stored"}
 
 
-@app.post("/sync/connect")
+@app.post("/api/sync/connect")
 def connect_sync(payload: SyncConnectIn, db: Session = Depends(get_db)):
     get_user_or_404(db, payload.user_id)
 
@@ -386,7 +386,7 @@ def connect_sync(payload: SyncConnectIn, db: Session = Depends(get_db)):
     }
 
 
-@app.post("/sync/import")
+@app.post("/api/sync/import")
 def import_sync(payload: SyncImportIn, db: Session = Depends(get_db)):
     get_user_or_404(db, payload.user_id)
 
@@ -449,13 +449,13 @@ def import_sync(payload: SyncImportIn, db: Session = Depends(get_db)):
     }
 
 
-@app.get("/challenges/{challenge_id}/leaderboard")
+@app.get("/api/challenges/{challenge_id}/leaderboard")
 def get_leaderboard(challenge_id: str, db: Session = Depends(get_db)):
     challenge = get_challenge_or_404(db, challenge_id)
     return {"challenge_id": challenge.id, "leaderboard": compute_leaderboard(db, challenge)}
 
 
-@app.post("/challenges/{challenge_id}/finalize")
+@app.post("/api/challenges/{challenge_id}/finalize")
 def finalize_challenge(challenge_id: str, payload: RematchIn, db: Session = Depends(get_db)):
     challenge = get_challenge_or_404(db, challenge_id)
     get_user_or_404(db, payload.creator_user_id)
