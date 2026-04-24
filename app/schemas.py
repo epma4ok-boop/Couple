@@ -12,9 +12,9 @@ class TelegramAuthIn(BaseModel):
 class ChallengeCreateIn(BaseModel):
     creator_user_id: str
     title: str = Field(min_length=3, max_length=80)
-    type: Literal['steps', 'workout', 'daily_checkin'] = 'steps'
+    type: Literal['steps', 'water', 'daily_checkin'] = 'steps'
     mode: Literal['race', 'goal'] = 'race'
-    trust_mode: Literal['manual', 'verified_sync', 'hybrid'] = 'manual'
+    trust_mode: Literal['manual'] = 'manual'
     duration_days: int = Field(default=7, ge=1, le=30)
     max_members: int = Field(default=8, ge=2, le=50)
 
