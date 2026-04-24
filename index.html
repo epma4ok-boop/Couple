@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WeekUp</title>
+  <style>
+    :root {
+      --bg: #f6efe8;
+      --bg-2: #fffaf6;
+      --surface: rgba(255,255,255,0.72);
+      --surface-strong: rgba(255,255,255,0.9);
+      --border: rgba(210, 182, 160, 0.42);
+      --text: #2f241d;
+      --muted: #7a6a60;
+      --primary: #f26a2e;
+      --primary-2: #ff8f4b;
+      --shadow: 0 18px 50px rgba(98, 56, 24, 0.10);
+      --radius: 26px;
+      --radius-sm: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, #f9d9c5 0, transparent 28%),
+        radial-gradient(circle at bottom right, #f9e9b6 0, transparent 24%),
+        linear-gradient(180deg, var(--bg), #f8f3ee 52%, #f1ece7 100%);
+      min-height: 100vh;
+    }
+    .shell {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 18px 14px 110px;
+      position: relative;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 4px;
+    }
+    .brand-icon, .lang-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #ffb24c, #f26a2e);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 800;
+      box-shadow: var(--shadow);
+      border: none;
+    }
+    .lang-btn {
+      background: var(--surface-strong);
+      color: var(--primary);
+      box-shadow: none;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-size: 20px;
+    }
+    .brand-title { font-size: 17px; font-weight: 800; }
+    .brand-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .card {
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero, .section { padding: 20px; margin-bottom: 14px; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(242, 106, 46, 0.14);
+      color: #f26a2e;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    h1,h2,h3,p { margin: 0; }
+    .hero h1 { font-size: 28px; line-height: 1.05; margin-top: 14px; }
+    .hero p { margin-top: 12px; color: var(--muted); font-size: 16px; line-height: 1.45; }
+    .pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(102, 177, 120, 0.14);
+      color: #2b8a52;
+      font-weight: 700;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    .challenge-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 10px;
+    }
+    .challenge-head h2 { font-size: 19px; }
+    .muted { color: var(--muted); }
+    .progress-shell {
+      margin-top: 16px;
+      height: 14px;
+      background: rgba(242,106,46,.14);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
+      transition: width .25s ease;
+    }
+    .tiny { font-size: 13px; color: var(--muted); }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .stat {
+      background: rgba(255,255,255,0.45);
+      border: 1px solid rgba(210, 182, 160, 0.35);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    .stat strong { display: block; font-size: 18px; margin-top: 6px; }
+    .stack { display: grid; gap: 10px; }
+    button, input, select { font: inherit; }
+    .primary-btn, .secondary-btn, .choice-btn, .tab {
+      border: none;
+      cursor: pointer;
+      transition: transform .15s ease, opacity .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .primary-btn:active, .secondary-btn:active, .choice-btn:active, .tab:active { transform: translateY(1px) scale(.99); }
+    .primary-btn {
+      width: 100%;
+      border-radius: 20px;
+      padding: 16px 18px;
+      background: linear-gradient(135deg, var(--primary), #ff7d3c);
+      color: white;
+      font-weight: 800;
+      font-size: 16px;
+      box-shadow: 0 14px 30px rgba(242, 106, 46, 0.28);
+    }
+    .secondary-btn {
+      width: 100%;
+      border-radius: 20px;
+      padding: 15px 18px;
+      background: rgba(255,255,255,0.55);
+      color: var(--text);
+      font-weight: 700;
+      border: 1px solid var(--border);
+    }
+    .form-grid, .leaderboard, .feed, .settings-list { display: grid; gap: 14px; }
+    .field { display: grid; gap: 8px; }
+    label { font-weight: 700; font-size: 15px; }
+    .input, .select {
+      width: 100%;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.54);
+      padding: 14px 16px;
+      color: var(--text);
+      outline: none;
+    }
+    .double-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .choice-btn {
+      text-align: left;
+      border-radius: 22px;
+      padding: 16px 14px;
+      background: rgba(255,255,255,0.46);
+      border: 1px solid var(--border);
+    }
+    .choice-btn.selected {
+      border-color: rgba(242, 106, 46, 0.6);
+      background: rgba(242, 106, 46, 0.10);
+      box-shadow: inset 0 0 0 1px rgba(242,106,46,0.18);
+    }
+    .choice-btn strong { display: block; font-size: 16px; }
+    .choice-btn span { display: block; margin-top: 6px; font-size: 13px; color: var(--muted); }
+    .row {
+      display: grid;
+      grid-template-columns: 26px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(210, 182, 160, 0.24);
+    }
+    .row:last-child { border-bottom: 0; }
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f7a84d, #f26a2e);
+    }
+    .score { font-weight: 800; }
+    .feed-item, .setting-item {
+      border-radius: 18px;
+      background: rgba(255,255,255,0.44);
+      border: 1px solid rgba(210, 182, 160, 0.28);
+      padding: 14px;
+      color: var(--muted);
+    }
+    .tabbar {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 10px;
+      width: min(430px, calc(100vw - 16px));
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(22px);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      z-index: 20;
+    }
+    .tab {
+      min-height: 58px;
+      border-radius: 18px;
+      background: transparent;
+      color: var(--muted);
+      display: grid;
+      gap: 3px;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .tab.active {
+      background: rgba(242,106,46,.14);
+      color: var(--primary);
+    }
+    .view.hidden { display: none; }
+    .toast {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      bottom: 92px;
+      width: min(360px, calc(100vw - 30px));
+      background: rgba(49, 36, 29, .92);
+      color: #fff;
+      border-radius: 18px;
+      padding: 14px 16px;
+      text-align: center;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: .25s ease;
+      z-index: 50;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-icon">✓</div>
+        <div>
+          <div class="brand-title">WeekUp</div>
+          <div class="brand-sub" id="appSubtitle">Друзья. Азарт. 7 дней.</div>
+        </div>
+      </div>
+      <button class="lang-btn" id="langToggle">🌐</button>
+    </div>
+
+    <section class="view" data-view="home">
+      <div class="card hero">
+        <div class="challenge-head">
+          <div>
+            <div class="eyebrow" id="homeBadge">🔥 Активный челлендж</div>
+            <h1 id="challengeName">Гонка 10K шагов</h1>
+            <p id="challengeSub">Челлендж по ссылке · 6 друзей · День 5 из 7</p>
+          </div>
+          <div class="pill" id="trustBadge">Manual</div>
+        </div>
+        <div class="progress-shell"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="tiny" style="margin-top:10px;" id="progressText">73% недельной цели уже выполнено</div>
+        <div class="stats">
+          <div class="stat"><span class="tiny" id="stat1Label">Ваше место</span><strong id="rankValue">#2</strong></div>
+          <div class="stat"><span class="tiny" id="stat2Label">Сегодня</span><strong id="todayValue">0</strong></div>
+          <div class="stat"><span class="tiny" id="stat3Label">До победы</span><strong id="gapValue">1,180</strong></div>
+        </div>
+        <div class="stack" style="margin-top:18px;">
+          <button class="primary-btn" id="primaryAction">Добавить вручную</button>
+          <button class="secondary-btn" id="openInviteFromHome">Пригласить друзей</button>
+        </div>
+      </div>
+
+      <div class="card section">
+        <div class="challenge-head">
+          <div>
+            <h2 id="leaderboardTitle">Таблица лидеров</h2>
+            <p class="muted" style="margin-top: 6px;" id="leaderboardSub">Результаты обновляются после добавления значения.</p>
+          </div>
+          <div class="pill" id="daysLeft">Осталось 2 дня</div>
+        </div>
+        <div class="leaderboard" id="leaderboardWrap">
+          <div class="row"><div><strong>#1</strong></div><div style="display:flex; align-items:center; gap:10px;"><div class="avatar">M</div><div><strong>Mia</strong><div class="tiny">лидер</div></div></div><div class="score" id="scoreMia">48,210</div></div>
+          <div class="row"><div><strong>#2</strong></div><div style="display:flex; align-items:center; gap:10px;"><div class="avatar" style="background:linear-gradient(135deg,#68a7ff,#7d64ff);">В</div><div><strong id="youName">Вы</strong><div class="tiny">ручной ввод</div></div></div><div class="score" id="scoreYou">47,030</div></div>
+          <div class="row"><div><strong>#3</strong></div><div style="display:flex; align-items:center; gap:10px;"><div class="avatar" style="background:linear-gradient(135deg,#7fc98b,#4ba36b);">L</div><div><strong>Leo</strong><div class="tiny">в игре</div></div></div><div class="score">45,860</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view hidden" data-view="create">
+      <div class="card hero">
+        <div class="eyebrow" id="createBadge">✨ Новый челлендж</div>
+        <h1 id="createTitle">Создайте челлендж</h1>
+        <p id="createSub">Выберите режим</p>
+      </div>
+      <div class="card section">
+        <div class="form-grid">
+          <div class="field">
+            <label id="fieldChallengeName">Название челленджа</label>
+            <input class="input" id="challengeNameInput" value="Утренний челлендж" />
+          </div>
+          <div class="field">
+            <label id="fieldChallengeType">Тип челленджа</label>
+            <div class="double-grid" id="typeGroup">
+              <button class="choice-btn selected" data-type="steps"><strong id="type1Title">Шаги</strong><span id="type1Text">Считать шаги за неделю</span></button>
+              <button class="choice-btn" data-type="water"><strong id="type2Title">Вода</strong><span id="type2Text">Считать выпитую воду</span></button>
+            </div>
+          </div>
+          <div class="field">
+            <label id="fieldMode">Режим</label>
+            <div class="double-grid" id="modeGroup">
+              <button class="choice-btn selected" data-mode="race"><strong id="mode1Title">Режим гонки</strong><span id="mode1Text">Побеждает лучший результат</span></button>
+              <button class="choice-btn" data-mode="goal"><strong id="mode2Title">Режим цели</strong><span id="mode2Text">Вместе дойти до общей цели</span></button>
+            </div>
+          </div>
+          <div class="field">
+            <label id="fieldParticipants">Размер группы</label>
+            <select class="select" id="participantsSelect">
+              <option>2–4</option>
+              <option selected>5–8</option>
+              <option>9–12</option>
+            </select>
+          </div>
+          <button class="primary-btn" id="createChallengeBtn">Создать челлендж</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="view hidden" data-view="results">
+      <div class="card hero">
+        <div class="eyebrow" id="resultsBadge">🏁 Итоги</div>
+        <h1 id="resultsTitle">Результаты недели</h1>
+        <p id="resultsSub">После завершения челленджа здесь появится победитель и финальная таблица.</p>
+      </div>
+      <div class="card section">
+        <div class="feed">
+          <div class="feed-item" id="result1">Победитель будет определён по сумме значений.</div>
+          <div class="feed-item" id="result2">Для режима воды можно считать стаканы, мл или литры.</div>
+          <div class="feed-item" id="result3">Режим гонки и режим цели уже готовы в интерфейсе.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view hidden" data-view="settings">
+      <div class="card hero">
+        <div class="eyebrow" id="settingsBadge">⚙️ Настройки</div>
+        <h1 id="settingsTitle">Профиль и приложение</h1>
+        <p id="settingsSub">Минимальные настройки для MVP.</p>
+      </div>
+      <div class="card section">
+        <div class="settings-list">
+          <div class="setting-item" id="settings1">Язык интерфейса переключается кнопкой сверху справа.</div>
+          <div class="setting-item" id="settings2">Все значения сейчас добавляются вручную.</div>
+          <div class="setting-item" id="settings3">Инвайт-ссылка генерируется после создания челленджа.</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="tabbar">
+    <button class="tab active" data-view-btn="home"><span>🏠</span><span id="tab1">Главная</span></button>
+    <button class="tab" data-view-btn="create"><span>➕</span><span id="tab2">Создать</span></button>
+    <button class="tab" data-view-btn="results"><span>📈</span><span id="tab3">Итоги</span></button>
+    <button class="tab" data-view-btn="settings"><span>⚙️</span><span id="tab4">Настройки</span></button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API_BASE = '/api';
+    const i18n = {
+      ru: {
+        appSubtitle: 'Друзья. Азарт. 7 дней.',
+        homeBadge: '🔥 Активный челлендж',
+        challengeName: 'Гонка 10K шагов',
+        challengeSub: 'Челлендж по ссылке · 6 друзей · День 5 из 7',
+        progressText: '73% недельной цели уже выполнено',
+        stat1Label: 'Ваше место',
+        stat2Label: 'Сегодня',
+        stat3Label: 'До победы',
+        primaryAction: 'Добавить вручную',
+        openInviteFromHome: 'Пригласить друзей',
+        leaderboardTitle: 'Таблица лидеров',
+        leaderboardSub: 'Результаты обновляются после добавления значения.',
+        daysLeft: 'Осталось 2 дня',
+        createBadge: '✨ Новый челлендж',
+        createTitle: 'Создайте челлендж',
+        createSub: 'Выберите режим',
+        fieldChallengeName: 'Название челленджа',
+        fieldChallengeType: 'Тип челленджа',
+        fieldMode: 'Режим',
+        fieldParticipants: 'Размер группы',
+        type1Title: 'Шаги',
+        type1Text: 'Считать шаги за неделю',
+        type2Title: 'Вода',
+        type2Text: 'Считать выпитую воду',
+        mode1Title: 'Режим гонки',
+        mode1Text: 'Побеждает лучший результат',
+        mode2Title: 'Режим цели',
+        mode2Text: 'Вместе дойти до общей цели',
+        createChallengeBtn: 'Создать челлендж',
+        resultsBadge: '🏁 Итоги',
+        resultsTitle: 'Результаты недели',
+        resultsSub: 'После завершения челленджа здесь появится победитель и финальная таблица.',
+        settingsBadge: '⚙️ Настройки',
+        settingsTitle: 'Профиль и приложение',
+        settingsSub: 'Минимальные настройки для MVP.',
+        tab1: 'Главная',
+        tab2: 'Создать',
+        tab3: 'Итоги',
+        tab4: 'Настройки',
+        toastCreated: 'Челлендж создан',
+        toastManual: 'Значение добавлено вручную',
+        toastInvite: 'Инвайт-ссылка готова',
+        toastLang: 'Язык переключен',
+        toastError: 'Запрос не удался'
+      },
+      en: {
+        appSubtitle: 'Friends. Fun. 7 days.',
+        homeBadge: '🔥 Active challenge',
+        challengeName: '10K Steps Sprint',
+        challengeSub: 'Invite-only challenge · 6 friends · Day 5 of 7',
+        progressText: '73% of the weekly goal reached',
+        stat1Label: 'Your rank',
+        stat2Label: 'Today',
+        stat3Label: 'Need to win',
+        primaryAction: 'Add manually',
+        openInviteFromHome: 'Invite friends',
+        leaderboardTitle: 'Leaderboard',
+        leaderboardSub: 'Results update after each manual entry.',
+        daysLeft: '2 days left',
+        createBadge: '✨ New challenge',
+        createTitle: 'Create a challenge',
+        createSub: 'Choose a mode',
+        fieldChallengeName: 'Challenge name',
+        fieldChallengeType: 'Challenge type',
+        fieldMode: 'Mode',
+        fieldParticipants: 'Group size',
+        type1Title: 'Steps',
+        type1Text: 'Track weekly steps',
+        type2Title: 'Water',
+        type2Text: 'Track water intake',
+        mode1Title: 'Race mode',
+        mode1Text: 'Best result wins',
+        mode2Title: 'Goal mode',
+        mode2Text: 'Reach one target together',
+        createChallengeBtn: 'Create challenge',
+        resultsBadge: '🏁 Results',
+        resultsTitle: 'Weekly results',
+        resultsSub: 'The winner and final leaderboard will appear here after challenge completion.',
+        settingsBadge: '⚙️ Settings',
+        settingsTitle: 'Profile and app',
+        settingsSub: 'Minimal settings for the MVP.',
+        tab1: 'Home',
+        tab2: 'Create',
+        tab3: 'Results',
+        tab4: 'Settings',
+        toastCreated: 'Challenge created',
+        toastManual: 'Value added manually',
+        toastInvite: 'Invite link is ready',
+        toastLang: 'Language switched',
+        toastError: 'Request failed'
+      }
+    };
+
+    const state = {
+      lang: 'ru',
+      challengeType: 'steps',
+      challengeMode: 'race',
+      trustMode: 'manual',
+      participants: '5–8',
+      progress: 73,
+      todayValue: 0,
+      userId: null,
+      challengeId: null,
+      inviteLink: null,
+      inviteCode: null,
+      youScore: 47030,
+      miaScore: 48210,
+      currentView: 'home'
+    };
+
+    const ids = [
+      'appSubtitle','homeBadge','challengeName','challengeSub','progressText','stat1Label','stat2Label','stat3Label',
+      'leaderboardTitle','leaderboardSub','daysLeft','createBadge','createTitle','createSub','fieldChallengeName','fieldChallengeType',
+      'fieldMode','fieldParticipants','type1Title','type1Text','type2Title','type2Text','mode1Title','mode1Text','mode2Title','mode2Text',
+      'resultsBadge','resultsTitle','resultsSub','settingsBadge','settingsTitle','settingsSub','tab1','tab2','tab3','tab4'
+    ];
+
+    function t(key){ return i18n[state.lang][key] || key; }
+    function showToast(message){
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+    function formatNumber(num){ return new Intl.NumberFormat(state.lang === 'ru' ? 'ru-RU' : 'en-US').format(num || 0); }
+    function showView(name){
+      state.currentView = name;
+      document.querySelectorAll('.view').forEach(v => v.classList.toggle('hidden', v.dataset.view !== name));
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.viewBtn === name));
+    }
+    function applyLang(lang){
+      state.lang = lang;
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = t(id);
+      });
+      document.getElementById('primaryAction').textContent = t('primaryAction');
+      document.getElementById('openInviteFromHome').textContent = t('openInviteFromHome');
+      document.getElementById('createChallengeBtn').textContent = t('createChallengeBtn');
+      renderState();
+    }
+    function renderState(){
+      document.getElementById('progressBar').style.width = state.progress + '%';
+      document.getElementById('todayValue').textContent = formatNumber(state.todayValue);
+      document.getElementById('scoreYou').textContent = formatNumber(state.youScore);
+      document.getElementById('scoreMia').textContent = formatNumber(state.miaScore);
+      document.getElementById('trustBadge').textContent = 'Manual';
+    }
+    function renderPayload(){
+      return {
+        creator_user_id: state.userId,
+        title: document.getElementById('challengeNameInput').value,
+        type: state.challengeType,
+        mode: state.challengeMode,
+        trust_mode: 'manual',
+        duration_days: 7,
+        max_members: state.participants === '2–4' ? 4 : state.participants === '5–8' ? 8 : 12
+      };
+    }
+    async function api(path, options={}){
+      const res = await fetch(API_BASE + path, {
+        headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+        ...options
+      });
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
+      if (!res.ok) throw new Error(data.detail || 'Request failed');
+      return data;
+    }
+    async function bootstrapUser(){
+      const data = await api('/auth/telegram', {
+        method: 'POST',
+        body: JSON.stringify({
+          telegram_user_id: Math.floor(Math.random() * 1000000000),
+          username: 'weekup_user',
+          display_name: state.lang === 'ru' ? 'Пользователь WeekUp' : 'WeekUp User',
+          language: state.lang,
+          timezone_name: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+        })
+      });
+      state.userId = data.user.id;
+    }
+    async function createChallenge(){
+      if (!state.userId) await bootstrapUser();
+      const data = await api('/challenges', {
+        method: 'POST',
+        body: JSON.stringify(renderPayload())
+      });
+      state.challengeId = data.challenge.id;
+      state.inviteCode = data.challenge.invite_code;
+      state.inviteLink = data.invite_link;
+      document.getElementById('challengeName').textContent = data.challenge.title;
+      document.getElementById('challengeSub').textContent = state.lang === 'ru'
+        ? `Челлендж по ссылке · до ${data.challenge.max_members} участников · 7 дней`
+        : `Invite challenge · up to ${data.challenge.max_members} members · 7 days`;
+      showView('home');
+      showToast(t('toastCreated'));
+    }
+    async function addManualValue(){
+      if (!state.challengeId) {
+        showView('create');
+        return showToast(state.lang === 'ru' ? 'Сначала создайте челлендж' : 'Create a challenge first');
+      }
+      if (!state.userId) await bootstrapUser();
+      const value = state.challengeType === 'water'
+        ? 1 + Math.floor(Math.random() * 3)
+        : 900 + Math.floor(Math.random() * 1100);
+      const data = await api(`/challenges/${state.challengeId}/entries/manual`, {
+        method: 'POST',
+        body: JSON.stringify({
+          user_id: state.userId,
+          entry_date: new Date().toISOString().slice(0,10),
+          value
+        })
+      });
+      state.todayValue = value;
+      const you = (data.leaderboard || []).find(x => x.user_id === state.userId);
+      if (you) state.youScore = you.total;
+      state.progress = Math.min(state.progress + 7, 100);
+      renderState();
+      showToast(t('toastManual'));
+    }
+
+    document.querySelectorAll('#typeGroup .choice-btn').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('#typeGroup .choice-btn').forEach(x => x.classList.remove('selected'));
+      btn.classList.add('selected');
+      state.challengeType = btn.dataset.type;
+    }));
+    document.querySelectorAll('#modeGroup .choice-btn').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('#modeGroup .choice-btn').forEach(x => x.classList.remove('selected'));
+      btn.classList.add('selected');
+      state.challengeMode = btn.dataset.mode;
+    }));
+    document.getElementById('participantsSelect').addEventListener('change', e => state.participants = e.target.value);
+    document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => showView(tab.dataset.viewBtn)));
+    document.getElementById('langToggle').addEventListener('click', () => {
+      applyLang(state.lang === 'ru' ? 'en' : 'ru');
+      showToast(t('toastLang'));
+    });
+    document.getElementById('createChallengeBtn').addEventListener('click', async () => {
+      try { await createChallenge(); } catch (e) { showToast(e.message || t('toastError')); }
+    });
+    document.getElementById('primaryAction').addEventListener('click', async () => {
+      try { await addManualValue(); } catch (e) { showToast(e.message || t('toastError')); }
+    });
+    document.getElementById('openInviteFromHome').addEventListener('click', () => {
+      if (state.inviteLink) {
+        navigator.clipboard?.writeText(state.inviteLink);
+        showToast(t('toastInvite'));
+      } else {
+        showToast(state.lang === 'ru' ? 'Сначала создайте челлендж' : 'Create a challenge first');
+      }
+    });
+
+    applyLang('ru');
+    renderState();
+    showView('home');
+  </script>
+</body>
+</html>
