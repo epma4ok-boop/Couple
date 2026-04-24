@@ -17,7 +17,6 @@ from app.schemas import (
 )
 
 app = FastAPI(title="WeekUp API")
-
 Base.metadata.create_all(bind=engine)
 
 
@@ -73,14 +72,13 @@ def compute_leaderboard(db: Session, challenge: Challenge):
             .all()
         )
         total = sum(item.value for item in entries)
-        verified = any(item.verified for item in entries)
         rows.append(
             {
                 "user_id": member.user_id,
                 "display_name": user.display_name if user else member.user_id,
                 "total": total,
-                "verified": verified,
-                "sync_status": member.sync_status,
+                "verified": False,
+                "sync_status": "manual",
             }
         )
 
@@ -107,7 +105,6 @@ def auth_telegram(payload: TelegramAuthIn, db: Session = Depends(get_db)):
         .filter(User.telegram_user_id == str(payload.telegram_user_id))
         .first()
     )
-
     if user:
         user.username = payload.username
         user.display_name = payload.display_name
@@ -126,16 +123,14 @@ def auth_telegram(payload: TelegramAuthIn, db: Session = Depends(get_db)):
 
     db.commit()
     db.refresh(user)
-    return {
-        "user": {
-            "id": user.id,
-            "telegram_user_id": user.telegram_user_id,
-            "username": user.username,
-            "display_name": user.display_name,
-            "language": user.language,
-            "timezone_name": user.timezone_name,
-        }
-    }
+    return {"user": {
+        "id": user.id,
+        "telegram_user_id": user.telegram_user_id,
+        "username": user.username,
+        "display_name": user.display_name,
+        "language": user.language,
+        "timezone_name": user.timezone_name,
+    }}
 
 
 @app.post("/api/challenges")
@@ -144,7 +139,6 @@ def create_challenge(payload: ChallengeCreateIn, db: Session = Depends(get_db)):
 
     start_at = datetime.utcnow()
     end_at = start_at + timedelta(days=payload.duration_days)
-
     code = invite_code()
     while db.query(Challenge).filter(Challenge.invite_code == code).first():
         code = invite_code()
@@ -155,7 +149,7 @@ def create_challenge(payload: ChallengeCreateIn, db: Session = Depends(get_db)):
         title=payload.title,
         type=payload.type,
         mode=payload.mode,
-        trust_mode=payload.trust_mode,
+        trust_mode="manual",
         duration_days=payload.duration_days,
         max_members=payload.max_members,
         status="active",
@@ -172,7 +166,7 @@ def create_challenge(payload: ChallengeCreateIn, db: Session = Depends(get_db)):
         user_id=payload.creator_user_id,
         role="owner",
         status="active",
-        sync_status="connected" if payload.trust_mode in {"verified_sync", "hybrid"} else "not_connected",
+        sync_status="manual",
     )
     db.add(creator_member)
     db.commit()
@@ -199,13 +193,8 @@ def create_challenge(payload: ChallengeCreateIn, db: Session = Depends(get_db)):
 @app.get("/api/challenges/{challenge_id}")
 def get_challenge(challenge_id: str, db: Session = Depends(get_db)):
     challenge = get_challenge_or_404(db, challenge_id)
-    members = (
-        db.query(ChallengeMember)
-        .filter(ChallengeMember.challenge_id == challenge.id)
-        .all()
-    )
+    members = db.query(ChallengeMember).filter(ChallengeMember.challenge_id == challenge.id).all()
     leaderboard = compute_leaderboard(db, challenge)
-
     return {
         "challenge": {
             "id": challenge.id,
@@ -240,17 +229,16 @@ def get_invite(code: str, db: Session = Depends(get_db)):
     if not challenge:
         raise HTTPException(status_code=404, detail="Invite not found")
 
-    member_count = (
-        db.query(ChallengeMember)
-        .filter(ChallengeMember.challenge_id == challenge.id, ChallengeMember.status == "active")
-        .count()
-    )
+    member_count = db.query(ChallengeMember).filter(
+        ChallengeMember.challenge_id == challenge.id,
+        ChallengeMember.status == "active"
+    ).count()
 
     return {
         "invite_code": challenge.invite_code,
         "challenge_id": challenge.id,
         "title": challenge.title,
-        "trust_mode": challenge.trust_mode,
+        "trust_mode": "manual",
         "status": challenge.status,
         "member_count": member_count,
         "max_members": challenge.max_members,
@@ -264,51 +252,43 @@ def accept_invite(code: str, payload: JoinInviteIn, db: Session = Depends(get_db
         raise HTTPException(status_code=404, detail="Invite not found")
 
     get_user_or_404(db, payload.user_id)
-
-    active_members_count = (
-        db.query(ChallengeMember)
-        .filter(ChallengeMember.challenge_id == challenge.id, ChallengeMember.status == "active")
-        .count()
-    )
+    active_members_count = db.query(ChallengeMember).filter(
+        ChallengeMember.challenge_id == challenge.id,
+        ChallengeMember.status == "active"
+    ).count()
     if active_members_count >= challenge.max_members:
         raise HTTPException(status_code=400, detail="Challenge is full")
 
     existing = get_member(db, challenge.id, payload.user_id)
     if existing:
-        return {
-            "membership": {
-                "id": existing.id,
-                "challenge_id": existing.challenge_id,
-                "user_id": existing.user_id,
-                "role": existing.role,
-                "status": existing.status,
-                "sync_status": existing.sync_status,
-            }
-        }
+        return {"membership": {
+            "id": existing.id,
+            "challenge_id": existing.challenge_id,
+            "user_id": existing.user_id,
+            "role": existing.role,
+            "status": existing.status,
+            "sync_status": existing.sync_status,
+        }}
 
-    sync_status = "connected" if challenge.trust_mode in {"verified_sync", "hybrid"} else "not_connected"
     member = ChallengeMember(
         id=uid("mem"),
         challenge_id=challenge.id,
         user_id=payload.user_id,
         role="member",
         status="active",
-        sync_status=sync_status,
+        sync_status="manual",
     )
     db.add(member)
     db.commit()
     db.refresh(member)
-
-    return {
-        "membership": {
-            "id": member.id,
-            "challenge_id": member.challenge_id,
-            "user_id": member.user_id,
-            "role": member.role,
-            "status": member.status,
-            "sync_status": member.sync_status,
-        }
-    }
+    return {"membership": {
+        "id": member.id,
+        "challenge_id": member.challenge_id,
+        "user_id": member.user_id,
+        "role": member.role,
+        "status": member.status,
+        "sync_status": member.sync_status,
+    }}
 
 
 @app.post("/api/challenges/{challenge_id}/entries/manual")
@@ -318,33 +298,27 @@ def add_manual_entry(challenge_id: str, payload: ManualEntryIn, db: Session = De
     if not member:
         raise HTTPException(status_code=404, detail="Challenge member not found")
 
-    existing = (
-        db.query(Entry)
-        .filter(
-            Entry.challenge_id == challenge.id,
-            Entry.user_id == payload.user_id,
-            Entry.entry_date == payload.entry_date,
-            Entry.source_type == "manual",
-        )
-        .first()
-    )
+    existing = db.query(Entry).filter(
+        Entry.challenge_id == challenge.id,
+        Entry.user_id == payload.user_id,
+        Entry.entry_date == payload.entry_date,
+        Entry.source_type == "manual",
+    ).first()
 
     if existing:
         existing.value = payload.value
         existing.verified = False
     else:
-        db.add(
-            Entry(
-                id=uid("ent"),
-                challenge_id=challenge.id,
-                user_id=payload.user_id,
-                entry_date=payload.entry_date,
-                value=payload.value,
-                source_type="manual",
-                verified=False,
-                raw_payload_hash=None,
-            )
-        )
+        db.add(Entry(
+            id=uid("ent"),
+            challenge_id=challenge.id,
+            user_id=payload.user_id,
+            entry_date=payload.entry_date,
+            value=payload.value,
+            source_type="manual",
+            verified=False,
+            raw_payload_hash=None,
+        ))
 
     db.commit()
     leaderboard = compute_leaderboard(db, challenge)
@@ -357,101 +331,20 @@ def add_manual_entry(challenge_id: str, payload: ManualEntryIn, db: Session = De
 
 @app.post("/api/sync/connect")
 def connect_sync(payload: SyncConnectIn, db: Session = Depends(get_db)):
-    get_user_or_404(db, payload.user_id)
-
-    sync = db.query(SyncSource).filter(SyncSource.user_id == payload.user_id).first()
-    if sync:
-        sync.provider = payload.provider
-        sync.status = "connected"
-        sync.last_synced_at = datetime.utcnow()
-    else:
-        sync = SyncSource(
-            id=uid("src"),
-            user_id=payload.user_id,
-            provider=payload.provider,
-            status="connected",
-            last_synced_at=datetime.utcnow(),
-        )
-        db.add(sync)
-
-    db.query(ChallengeMember).filter(ChallengeMember.user_id == payload.user_id).update(
-        {"sync_status": "connected"}
-    )
-
-    db.commit()
-    db.refresh(sync)
     return {
         "sync_source": {
-            "id": sync.id,
-            "user_id": sync.user_id,
-            "provider": sync.provider,
-            "status": sync.status,
-            "last_synced_at": sync.last_synced_at.isoformat() if sync.last_synced_at else None,
+            "id": uid("src"),
+            "user_id": payload.user_id,
+            "provider": payload.provider,
+            "status": "disabled",
+            "last_synced_at": None,
         }
     }
 
 
 @app.post("/api/sync/import")
 def import_sync(payload: SyncImportIn, db: Session = Depends(get_db)):
-    get_user_or_404(db, payload.user_id)
-
-    sync = db.query(SyncSource).filter(SyncSource.user_id == payload.user_id).first()
-    if not sync:
-        raise HTTPException(status_code=400, detail="Sync source not connected")
-
-    memberships = (
-        db.query(ChallengeMember)
-        .join(Challenge, Challenge.id == ChallengeMember.challenge_id)
-        .filter(ChallengeMember.user_id == payload.user_id, Challenge.status == "active")
-        .all()
-    )
-    if not memberships:
-        raise HTTPException(status_code=404, detail="No active challenge memberships found")
-
-    created_entries = []
-    for membership in memberships:
-        existing = (
-            db.query(Entry)
-            .filter(
-                Entry.challenge_id == membership.challenge_id,
-                Entry.user_id == payload.user_id,
-                Entry.entry_date == payload.entry_date,
-                Entry.source_type == payload.provider,
-            )
-            .first()
-        )
-        if existing:
-            existing.value = payload.value
-            existing.verified = True
-            existing.raw_payload_hash = payload.raw_payload_hash
-            created_entries.append(existing.id)
-        else:
-            entry = Entry(
-                id=uid("ent"),
-                challenge_id=membership.challenge_id,
-                user_id=payload.user_id,
-                entry_date=payload.entry_date,
-                value=payload.value,
-                source_type=payload.provider,
-                verified=True,
-                raw_payload_hash=payload.raw_payload_hash,
-            )
-            db.add(entry)
-            created_entries.append(entry.id)
-
-        membership.sync_status = "connected"
-
-    sync.last_synced_at = datetime.utcnow()
-    db.commit()
-
-    return {
-        "status": "ok",
-        "imported_entries": created_entries,
-        "provider": payload.provider,
-        "entry_date": payload.entry_date.isoformat(),
-        "value": payload.value,
-        "verified": True,
-    }
+    raise HTTPException(status_code=400, detail="Sync import disabled in manual-only mode")
 
 
 @app.get("/api/challenges/{challenge_id}/leaderboard")
@@ -464,14 +357,11 @@ def get_leaderboard(challenge_id: str, db: Session = Depends(get_db)):
 def finalize_challenge(challenge_id: str, payload: RematchIn, db: Session = Depends(get_db)):
     challenge = get_challenge_or_404(db, challenge_id)
     get_user_or_404(db, payload.creator_user_id)
-
     leaderboard = compute_leaderboard(db, challenge)
     challenge.status = "completed"
     db.commit()
-
     winner = leaderboard[0] if leaderboard else None
     rematch_code = invite_code()
-
     return {
         "status": "completed",
         "challenge_id": challenge.id,
