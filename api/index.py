@@ -347,7 +347,12 @@ def add_manual_entry(challenge_id: str, payload: ManualEntryIn, db: Session = De
         )
 
     db.commit()
-    return {"status": "ok", "message": "Manual entry stored"}
+    leaderboard = compute_leaderboard(db, challenge)
+    return {
+        "status": "ok",
+        "message": "Manual entry stored",
+        "leaderboard": leaderboard,
+    }
 
 
 @app.post("/api/sync/connect")
