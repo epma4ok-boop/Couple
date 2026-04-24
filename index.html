@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WeekUp</title>
+  <style>
+    :root {
+      --bg:#f6efe8; --surface:rgba(255,255,255,.76); --border:rgba(212,184,161,.42); --text:#2f241d; --muted:#7c6f67;
+      --primary:#f26a2e; --primary2:#ff8a45; --green:#2f9e62; --greenbg:rgba(47,158,98,.14); --shadow:0 16px 48px rgba(102,63,31,.11);
+    }
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--text);background:radial-gradient(circle at top left,#f9dac7 0,transparent 28%),radial-gradient(circle at bottom right,#f6e7b9 0,transparent 24%),linear-gradient(180deg,#f5eee7,#f0ebe5);min-height:100vh}
+    .shell{max-width:430px;margin:0 auto;padding:18px 14px 110px}.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.brand{display:flex;gap:12px;align-items:center}.brand-icon,.lang-btn{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;border:none}.brand-icon{background:linear-gradient(135deg,#ffb24c,#f26a2e);color:#fff;font-weight:800;box-shadow:var(--shadow)}.lang-btn{background:var(--surface);border:1px solid var(--border);cursor:pointer}.brand-title{font-size:18px;font-weight:800}.brand-sub{font-size:12px;color:var(--muted)}
+    .card{background:var(--surface);backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:28px;box-shadow:var(--shadow);padding:20px;margin-bottom:14px}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(242,106,46,.14);color:var(--primary);font-size:12px;font-weight:800;text-transform:uppercase}.challenge-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.pill{padding:10px 14px;border-radius:999px;background:var(--greenbg);color:var(--green);font-size:14px;font-weight:700}.muted{color:var(--muted)} h1,h2,p{margin:0}.hero-title{font-size:26px;line-height:1.05;margin-top:14px}.hero-sub{margin-top:10px;color:var(--muted);font-size:16px;line-height:1.45}
+    .progress-wrap{margin-top:16px}.progress-shell{height:14px;border-radius:999px;background:rgba(242,106,46,.14);overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--primary2));border-radius:inherit;transition:width .25s ease}.tiny{font-size:13px;color:var(--muted);margin-top:10px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.stat{padding:14px;border-radius:18px;background:rgba(255,255,255,.48);border:1px solid rgba(212,184,161,.34)}.stat strong{display:block;font-size:18px;margin-top:6px}
+    .stack,.leaderboard,.form-grid,.settings-list{display:grid;gap:12px}.primary-btn,.secondary-btn,.choice-btn,.tab{cursor:pointer;transition:.18s ease}.primary-btn:active,.secondary-btn:active,.choice-btn:active,.tab:active{transform:translateY(1px) scale(.99)}.primary-btn,.secondary-btn,.input,.select,.choice-btn{width:100%;font:inherit;border-radius:20px}.primary-btn{padding:16px;border:none;background:linear-gradient(135deg,var(--primary),#ff7c3c);color:#fff;font-weight:800;box-shadow:0 14px 30px rgba(242,106,46,.28)}.secondary-btn{padding:15px;border:1px solid var(--border);background:rgba(255,255,255,.55);font-weight:700}.input,.select{padding:14px 16px;border:1px solid var(--border);background:rgba(255,255,255,.54)} .field{display:grid;gap:8px} label{font-weight:700}
+    .double-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.choice-btn{text-align:left;border:1px solid var(--border);background:rgba(255,255,255,.46);padding:16px 14px}.choice-btn.selected{border-color:rgba(242,106,46,.6);background:rgba(242,106,46,.10);box-shadow:inset 0 0 0 1px rgba(242,106,46,.18)}.choice-btn strong{display:block;font-size:16px}.choice-btn span{display:block;margin-top:6px;font-size:13px;color:var(--muted)}
+    .row{display:grid;grid-template-columns:26px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(212,184,161,.24)}.row:last-child{border-bottom:0}.avatar{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;color:#fff;font-weight:700;background:linear-gradient(135deg,#f7a84d,#f26a2e)}.score{font-weight:800}.badge-race,.badge-goal{display:inline-flex;padding:7px 11px;border-radius:999px;font-size:12px;font-weight:800}.badge-race{background:rgba(242,106,46,.14);color:var(--primary)}.badge-goal{background:rgba(47,158,98,.14);color:var(--green)}
+    .hidden{display:none!important}.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:10px;width:min(430px,calc(100vw - 16px));padding:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;background:rgba(255,255,255,.72);backdrop-filter:blur(22px);border:1px solid var(--border);border-radius:28px;box-shadow:var(--shadow)}.tab{min-height:58px;border:none;border-radius:18px;background:transparent;color:var(--muted);display:grid;gap:3px;place-items:center;font-size:13px;font-weight:700}.tab.active{background:rgba(242,106,46,.14);color:var(--primary)}.toast{position:fixed;left:50%;transform:translateX(-50%) translateY(20px);bottom:92px;width:min(360px,calc(100vw - 30px));background:rgba(49,36,29,.92);color:#fff;border-radius:18px;padding:14px 16px;text-align:center;font-weight:700;opacity:0;pointer-events:none;transition:.25s ease}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <div class="brand"><div class="brand-icon">✓</div><div><div class="brand-title">WeekUp</div><div class="brand-sub" id="appSubtitle">Друзья. Азарт. 7 дней.</div></div></div>
+    <button class="lang-btn" id="langToggle">🌐</button>
+  </div>
+
+  <section class="view" data-view="home">
+    <div class="card">
+      <div class="challenge-head">
+        <div>
+          <div class="eyebrow" id="homeBadge">🔥 Активный челлендж</div>
+          <h1 class="hero-title" id="challengeName">Челлендж</h1>
+          <p class="hero-sub" id="challengeSub">Сначала создайте челлендж</p>
+        </div>
+        <div class="pill" id="modeBadge">Manual</div>
+      </div>
+
+      <div id="goalBlock" class="progress-wrap hidden">
+        <div class="progress-shell"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="tiny" id="progressText">Команда идет к общей недельной цели</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><span class="tiny" id="stat1Label">Ваше место</span><strong id="rankValue">—</strong></div>
+        <div class="stat"><span class="tiny" id="stat2Label">Сегодня</span><strong id="todayValue">0</strong></div>
+        <div class="stat"><span class="tiny" id="stat3Label">До лидера</span><strong id="gapValue">—</strong></div>
+      </div>
+
+      <div class="stack" style="margin-top:18px">
+        <button class="primary-btn" id="primaryAction">Добавить вручную</button>
+        <button class="secondary-btn" id="openInviteFromHome">Пригласить друзей</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="challenge-head">
+        <div>
+          <h2 id="leaderboardTitle">Таблица лидеров</h2>
+          <p class="muted" style="margin-top:6px" id="leaderboardSub">Данные берутся из backend.</p>
+        </div>
+        <div class="pill" id="daysLeft">—</div>
+      </div>
+      <div class="leaderboard" id="leaderboardWrap"></div>
+    </div>
+  </section>
+
+  <section class="view hidden" data-view="create">
+    <div class="card">
+      <div class="eyebrow" id="createBadge">✨ Новый челлендж</div>
+      <h1 class="hero-title" id="createTitle">Создайте челлендж</h1>
+      <p class="hero-sub" id="createSub">Выберите тип и режим</p>
+    </div>
+    <div class="card">
+      <div class="form-grid">
+        <div class="field"><label id="fieldChallengeName">Название челленджа</label><input class="input" id="challengeNameInput" value="Утренний челлендж" /></div>
+        <div class="field"><label id="fieldChallengeType">Тип челленджа</label><div class="double-grid" id="typeGroup"><button class="choice-btn selected" data-type="steps"><strong id="type1Title">Шаги</strong><span id="type1Text">Считать шаги за неделю</span></button><button class="choice-btn" data-type="water"><strong id="type2Title">Вода</strong><span id="type2Text">Считать выпитую воду</span></button></div></div>
+        <div class="field"><label id="fieldMode">Режим</label><div class="double-grid" id="modeGroup"><button class="choice-btn selected" data-mode="race"><strong id="mode1Title">Режим гонки</strong><span id="mode1Text">Побеждает лучший результат</span></button><button class="choice-btn" data-mode="goal"><strong id="mode2Title">Совместная цель</strong><span id="mode2Text">Вместе дойти до недельной цели</span></button></div></div>
+        <div class="field hidden" id="goalTargetField"><label id="fieldGoalTarget">Недельная цель</label><input class="input" id="goalTargetInput" type="number" value="70000" /></div>
+        <div class="field"><label id="fieldParticipants">Размер группы</label><select class="select" id="participantsSelect"><option>2–4</option><option selected>5–8</option><option>9–12</option></select></div>
+        <button class="primary-btn" id="createChallengeBtn">Создать челлендж</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="view hidden" data-view="results"><div class="card"><div class="eyebrow">🏁 Итоги</div><h1 class="hero-title">Результаты недели</h1><p class="hero-sub">После завершения челленджа здесь появится итоговая сводка.</p></div></section>
+  <section class="view hidden" data-view="settings"><div class="card"><div class="eyebrow">⚙️ Настройки</div><h1 class="hero-title">Настройки</h1><p class="hero-sub">Упрощённый MVP-экран.</p></div></section>
+</div>
+
+<div class="tabbar">
+  <button class="tab active" data-view-btn="home"><span>🏠</span><span id="tab1">Главная</span></button>
+  <button class="tab" data-view-btn="create"><span>➕</span><span id="tab2">Создать</span></button>
+  <button class="tab" data-view-btn="results"><span>📈</span><span id="tab3">Итоги</span></button>
+  <button class="tab" data-view-btn="settings"><span>⚙️</span><span id="tab4">Настройки</span></button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const API_BASE = '/api';
+const state = { lang:'ru', challengeType:'steps', challengeMode:'race', participants:'5–8', challengeId:null, userId:null, inviteLink:null, summary:null, challenge:null };
+function showToast(message){const el=document.getElementById('toast'); el.textContent=message; el.classList.add('show'); clearTimeout(showToast.t); showToast.t=setTimeout(()=>el.classList.remove('show'),2200)}
+function formatNumber(n){return new Intl.NumberFormat(state.lang==='ru'?'ru-RU':'en-US').format(n||0)}
+function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('hidden',v.dataset.view!==name)); document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.viewBtn===name))}
+function renderLeaderboard(rows=[]){const wrap=document.getElementById('leaderboardWrap'); if(!rows.length){wrap.innerHTML='<div class="muted">Пока нет участников</div>'; return;} wrap.innerHTML=rows.map((row,idx)=>`<div class="row"><div><strong>#${row.rank||idx+1}</strong></div><div style="display:flex;align-items:center;gap:10px"><div class="avatar">${(row.display_name||'?').slice(0,1).toUpperCase()}</div><div><strong>${row.display_name}</strong><div class="tiny">Сегодня: ${formatNumber(row.today||0)}</div></div></div><div class="score">${formatNumber(row.total||0)}</div></div>`).join('')}
+function renderHome(){const c=state.challenge, s=state.summary; if(!c||!s) return; document.getElementById('challengeName').textContent=c.title; document.getElementById('challengeSub').textContent = state.lang==='ru' ? `Челлендж по ссылке · до ${c.max_members} участников · ${c.duration_days} дней` : `Invite challenge · up to ${c.max_members} members · ${c.duration_days} days`; document.getElementById('daysLeft').textContent = state.lang==='ru' ? `Осталось ${s.days_left} дн` : `${s.days_left} days left`; document.getElementById('rankValue').textContent = s.your_rank ? '#'+s.your_rank : '—'; document.getElementById('todayValue').textContent = formatNumber(s.your_today||0); document.getElementById('modeBadge').textContent = c.mode === 'goal' ? 'Goal' : 'Race'; const goalBlock=document.getElementById('goalBlock');
+if(c.mode==='goal'){goalBlock.classList.remove('hidden'); document.getElementById('progressBar').style.width=(s.goal_progress_percent||0)+'%'; document.getElementById('progressText').textContent = state.lang==='ru' ? `${formatNumber(s.goal_progress_total||0)} из ${formatNumber(s.goal_target||0)} общей недельной цели` : `${formatNumber(s.goal_progress_total||0)} of ${formatNumber(s.goal_target||0)} weekly goal`; document.getElementById('gapValue').textContent = formatNumber(s.goal_target ? Math.max((s.goal_target - (s.goal_progress_total||0)),0) : 0);} else {goalBlock.classList.add('hidden'); document.getElementById('gapValue').textContent = formatNumber(s.gap_to_leader||0);} renderLeaderboard(s.leaderboard||[])}
+async function api(path, options={}){const res=await fetch(API_BASE+path,{headers:{'Content-Type':'application/json',...(options.headers||{})},...options}); const text=await res.text(); const data=text?JSON.parse(text):{}; if(!res.ok) throw new Error(data.detail||'Request failed'); return data}
+async function bootstrapUser(){const data=await api('/auth/telegram',{method:'POST',body:JSON.stringify({telegram_user_id:Math.floor(Math.random()*1000000000),username:'weekup_user',display_name:'WeekUp User',language:'ru',timezone_name:Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC'})}); state.userId=data.user.id}
+function buildPayload(){return {creator_user_id:state.userId,title:document.getElementById('challengeNameInput').value,type:state.challengeType,mode:state.challengeMode,trust_mode:'manual',duration_days:7,max_members:state.participants==='2–4'?4:state.participants==='5–8'?8:12,goal_target: state.challengeMode==='goal' ? Number(document.getElementById('goalTargetInput').value||0) : null}}
+async function createChallenge(){if(!state.userId) await bootstrapUser(); const data=await api('/challenges',{method:'POST',body:JSON.stringify(buildPayload())}); state.challengeId=data.challenge.id; state.challenge=data.challenge; state.inviteLink=data.invite_link; const fresh=await api(`/challenges/${state.challengeId}?user_id=${encodeURIComponent(state.userId)}`); state.challenge=fresh.challenge; state.summary=fresh.summary; renderHome(); showView('home'); showToast('Челлендж создан')}
+async function addManual(){if(!state.challengeId) return showToast('Сначала создайте челлендж'); if(!state.userId) await bootstrapUser(); const value = state.challengeType==='water' ? 1+Math.floor(Math.random()*3) : 900+Math.floor(Math.random()*1100); const data=await api(`/challenges/${state.challengeId}/entries/manual`,{method:'POST',body:JSON.stringify({user_id:state.userId,entry_date:new Date().toISOString().slice(0,10),value})}); state.summary=data.summary; renderHome(); showToast('Значение добавлено')}
+function refreshGoalUI(){const isGoal=state.challengeMode==='goal'; document.getElementById('goalTargetField').classList.toggle('hidden',!isGoal); document.getElementById('stat3Label').textContent = isGoal ? 'До цели' : 'До лидера'}
+
+document.querySelectorAll('#typeGroup .choice-btn').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('#typeGroup .choice-btn').forEach(x=>x.classList.remove('selected')); btn.classList.add('selected'); state.challengeType=btn.dataset.type; if(state.challengeType==='water' && state.challengeMode==='goal' && !document.getElementById('goalTargetInput').dataset.touched){document.getElementById('goalTargetInput').value=56}}));
+document.querySelectorAll('#modeGroup .choice-btn').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('#modeGroup .choice-btn').forEach(x=>x.classList.remove('selected')); btn.classList.add('selected'); state.challengeMode=btn.dataset.mode; if(state.challengeMode==='goal'){document.getElementById('goalTargetInput').value = state.challengeType==='water' ? 56 : 70000} refreshGoalUI();}));
+document.getElementById('goalTargetInput').addEventListener('input',e=>e.target.dataset.touched='1');
+document.getElementById('participantsSelect').addEventListener('change',e=>state.participants=e.target.value);
+document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>showView(tab.dataset.viewBtn)));
+document.getElementById('createChallengeBtn').addEventListener('click',async()=>{try{await createChallenge()}catch(e){showToast(e.message)}});
+document.getElementById('primaryAction').addEventListener('click',async()=>{try{await addManual()}catch(e){showToast(e.message)}});
+document.getElementById('openInviteFromHome').addEventListener('click',()=>{if(!state.inviteLink) return showToast('Сначала создайте челлендж'); navigator.clipboard?.writeText(state.inviteLink); showToast('Ссылка скопирована')});
+refreshGoalUI(); showView('home');
+</script>
+</body>
+</html>
