@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>WeekUp Sporty Dark V2</title>
+  <title>WeekUp · Weekly Race</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <style>
@@ -274,6 +274,7 @@
       padding: 10px;
       border-radius: 22px;
       background: rgba(10, 14, 24, 0.92);
+      margin-top: 4px;
     }
     .nav button {
       min-height: 52px;
@@ -290,6 +291,21 @@
     }
 
     .muted { color: var(--muted); }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .field {
+      display:flex; flex-direction:column; gap:6px; margin-bottom: 12px;
+    }
+    .field label { font-size: 13px; color: var(--muted); }
+    .input, select {
+      width: 100%; border-radius: 14px; padding: 12px 12px;
+      border: 1px solid rgba(96,165,250,0.22);
+      background: rgba(7,11,18,0.72);
+      color: #eef4ff;
+      font-size: 14px;
+    }
 
     @media (max-width: 380px) {
       h1 { font-size: 28px; }
@@ -310,133 +326,484 @@
         </div>
         <div>
           <strong>WeekUp</strong>
-          <span>Sporty dark mini app</span>
+          <span>7‑day race with friends</span>
         </div>
       </div>
-      <button class="icon-btn" aria-label="Notifications">✦</button>
+      <button class="icon-btn" id="profileBtn" aria-label="Profile">☰</button>
     </header>
 
-    <section class="card hero">
-      <div class="eyebrow">🔥 Active challenge</div>
-      <div class="challenge-head">
-        <div>
-          <h1>10K Steps Sprint</h1>
-          <p class="sub">6 players · Day 5 of 7 · verified race</p>
-        </div>
-        <div class="pill">2 days left</div>
-      </div>
-
-      <div class="progress-shell"><div class="progress-bar"></div></div>
-      <div class="tiny" style="margin-top:8px;">73% of the weekly goal reached</div>
-
-      <div class="stats">
-        <div class="stat"><span class="tiny">Your rank</span><strong>#2</strong></div>
-        <div class="stat"><span class="tiny">Today</span><strong>8,420</strong></div>
-        <div class="stat"><span class="tiny">To lead</span><strong>1,180</strong></div>
-      </div>
-
-      <div class="actions">
-        <button class="primary-btn">Add result</button>
-        <button class="secondary-btn">Invite friends</button>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="section-head">
-        <div>
-          <h2>Leaderboard</h2>
-          <p class="sub" style="font-size:14px;">Fast, clean, and easy to scan.</p>
-        </div>
-        <div class="pill">Live</div>
-      </div>
-
-      <div class="leaderboard">
-        <div class="row top">
-          <div class="tiny"><strong>#1</strong></div>
-          <div class="person">
-            <div class="avatar">M</div>
-            <div><strong>Mia</strong><div class="tiny">verified leader</div></div>
+    <!-- HOME VIEW -->
+    <section class="view active" data-view="home">
+      <section class="card hero" id="homeHero">
+        <div class="eyebrow" id="homeBadge">🔥 Active challenge</div>
+        <div class="challenge-head">
+          <div>
+            <h1 id="homeTitle">10K Steps Sprint</h1>
+            <p class="sub" id="homeSub">6 players · Day 5 of 7 · verified race</p>
           </div>
-          <div class="score">48,210</div>
+          <div class="pill" id="homeDaysLeft">2 days left</div>
         </div>
 
-        <div class="row">
-          <div class="tiny"><strong>#2</strong></div>
-          <div class="person">
-            <div class="avatar you">Y</div>
-            <div><strong>You</strong><div class="tiny">verified sync</div></div>
+        <div class="progress-shell"><div class="progress-bar" id="homeProgress"></div></div>
+        <div class="tiny" style="margin-top:8px;" id="homeProgressText">73% of the weekly goal reached</div>
+
+        <div class="stats">
+          <div class="stat"><span class="tiny">Your rank</span><strong id="statRank">—</strong></div>
+          <div class="stat"><span class="tiny">Today</span><strong id="statToday">—</strong></div>
+          <div class="stat"><span class="tiny">To lead</span><strong id="statGap">—</strong></div>
+        </div>
+
+        <div class="actions">
+          <button class="primary-btn" id="addResultBtn">Add result</button>
+          <button class="secondary-btn" data-nav="invite">Invite friends</button>
+        </div>
+      </section>
+    </section>
+
+    <!-- BOARD VIEW -->
+    <section class="view" data-view="board">
+      <section class="card">
+        <div class="section-head">
+          <div>
+            <h2>Leaderboard</h2>
+            <p class="sub" style="font-size:14px;">Live standings for this challenge.</p>
           </div>
-          <div class="score">47,030</div>
+          <div class="pill" id="boardStatus">Live</div>
         </div>
+        <div class="leaderboard" id="leaderboardList"></div>
+      </section>
 
-        <div class="row">
-          <div class="tiny"><strong>#3</strong></div>
-          <div class="person">
-            <div class="avatar" style="background:linear-gradient(135deg,#34d399,#4f8cff);">L</div>
-            <div><strong>Leo</strong><div class="tiny">manual entry</div></div>
+      <section class="card">
+        <div class="section-head">
+          <div>
+            <h2>Challenge status</h2>
+            <p class="sub" style="font-size:14px;">Only useful signals, no dev noise.</p>
           </div>
-          <div class="score">43,880</div>
         </div>
-      </div>
+        <div class="chips">
+          <div class="chip good" id="chipMode">Race</div>
+          <div class="chip" id="chipTrust">Manual</div>
+          <div class="chip" id="chipMembers">0 / 8 players</div>
+          <div class="chip" id="chipDays">7 days</div>
+        </div>
+
+        <div class="mini-grid">
+          <div class="mini-card">
+            <span class="tiny">Leader total</span>
+            <strong id="leaderTotal">—</strong>
+            <span class="muted">Top score in this challenge</span>
+          </div>
+          <div class="mini-card">
+            <span class="tiny">Your total</span>
+            <strong id="yourTotal">—</strong>
+            <span class="muted">Keep your streak alive</span>
+          </div>
+        </div>
+      </section>
     </section>
 
-    <section class="card">
-      <div class="section-head">
-        <div>
-          <h2>Challenge status</h2>
-          <p class="sub" style="font-size:14px;">Only the useful signals, without prototype clutter.</p>
+    <!-- INVITE VIEW -->
+    <section class="view" data-view="invite">
+      <section class="card">
+        <div class="section-head">
+          <div>
+            <h2>Invite friends</h2>
+            <p class="sub" style="font-size:14px;" id="inviteSubText">Share a link, they join this challenge.</p>
+          </div>
         </div>
-      </div>
-      <div class="chips">
-        <div class="chip good">Verified sync</div>
-        <div class="chip">Invite only</div>
-        <div class="chip">6 / 8 players</div>
-        <div class="chip">Weekly race</div>
-      </div>
-
-      <div class="mini-grid">
-        <div class="mini-card"><span class="tiny">Leader total</span><strong>48,210</strong><span class="muted">Mia keeps a small gap</span></div>
-        <div class="mini-card"><span class="tiny">Your total</span><strong>47,030</strong><span class="muted">You can take the lead today</span></div>
-      </div>
+        <div class="invite-box">
+          <div class="tiny">Invite link</div>
+          <div class="invite-link" id="inviteLink">–</div>
+          <div class="stack" style="margin-top:12px;">
+            <button class="primary-btn" id="copyInviteBtn">Copy link</button>
+            <button class="secondary-btn" id="shareInviteBtn">Share in Telegram</button>
+          </div>
+        </div>
+      </section>
     </section>
 
-    <section class="card">
-      <div class="section-head">
-        <div>
-          <h2>Recent activity</h2>
-          <p class="sub" style="font-size:14px;">Human-readable updates instead of backend debug text.</p>
+    <!-- CREATE VIEW -->
+    <section class="view" data-view="create">
+      <section class="card">
+        <div class="section-head">
+          <div>
+            <h2>New challenge</h2>
+            <p class="sub" style="font-size:14px;">Set up a 7‑day race for your crew.</p>
+          </div>
         </div>
-      </div>
-      <div class="activity">
-        <div class="activity-item"><div class="dot"></div><div><strong>You added 8,420 steps</strong><div class="tiny">Today · synced successfully</div></div></div>
-        <div class="activity-item"><div class="dot"></div><div><strong>Mia stayed in first place</strong><div class="tiny">Lead gap is now 1,180</div></div></div>
-        <div class="activity-item"><div class="dot"></div><div><strong>Invite link is active</strong><div class="tiny">Share it before the round closes</div></div></div>
-      </div>
+        <div class="field">
+          <label for="titleInput">Name</label>
+          <input class="input" id="titleInput" value="Morning Steps Club" />
+        </div>
+        <div class="field">
+          <label for="typeSelect">Type</label>
+          <select id="typeSelect" class="input">
+            <option value="steps">Steps</option>
+            <option value="water">Water</option>
+            <option value="daily_checkin">Daily check‑in</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="modeSelect">Mode</label>
+          <select id="modeSelect" class="input">
+            <option value="race">Race (best wins)</option>
+            <option value="goal">Goal (reach together)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="maxMembersInput">Max players</label>
+          <input class="input" type="number" id="maxMembersInput" value="8" min="2" max="50" />
+        </div>
+        <div class="field">
+          <label for="durationInput">Duration days</label>
+          <input class="input" type="number" id="durationInput" value="7" min="1" max="30" />
+        </div>
+        <button class="primary-btn" id="createChallengeBtn">Start 7‑day challenge</button>
+      </section>
     </section>
 
-    <section class="card">
-      <div class="section-head">
-        <div>
-          <h2>Invite panel</h2>
-          <p class="sub" style="font-size:14px;">Quick access, no extra technical noise.</p>
+    <!-- SIMPLE PROFILE (telegram info) -->
+    <section class="view" data-view="profile">
+      <section class="card">
+        <div class="section-head">
+          <div>
+            <h2>Profile</h2>
+            <p class="sub" style="font-size:14px;">Telegram details used for the race.</p>
+          </div>
         </div>
-      </div>
-      <div class="invite-box">
-        <div class="tiny">Invite link</div>
-        <div class="invite-link">t.me/weekupbot?startapp=WKUP7A9</div>
-        <div class="stack" style="margin-top:12px;">
-          <button class="primary-btn">Copy link</button>
-          <button class="secondary-btn">Share in Telegram</button>
+        <div class="activity">
+          <div class="activity-item">
+            <div class="dot"></div>
+            <div>
+              <strong id="profileName">—</strong>
+              <div class="tiny" id="profileUsername">—</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="dot"></div>
+            <div>
+              <strong>Language</strong>
+              <div class="tiny" id="profileLang">—</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="dot"></div>
+            <div>
+              <strong>Timezone</strong>
+              <div class="tiny" id="profileTz">—</div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
     </section>
 
     <nav class="nav" aria-label="Bottom navigation">
-      <button class="active">Home</button>
-      <button>Board</button>
-      <button>Invite</button>
-      <button>Profile</button>
+      <button class="active" data-view-btn="home">Home</button>
+      <button data-view-btn="board">Board</button>
+      <button data-view-btn="invite">Invite</button>
+      <button data-view-btn="create">Create</button>
     </nav>
   </main>
+
+  <div id="toast" style="position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(20px);background:rgba(8,12,20,.92);color:#eef4ff;border:1px solid rgba(113,210,255,.22);padding:12px 14px;border-radius:14px;font-size:14px;box-shadow:0 16px 40px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.22s ease;z-index:40;">Ready</div>
+
+  <script>
+    (function () {
+      const API_BASE = '/api';
+      const tg = window.Telegram && window.Telegram.WebApp;
+      const initUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user || null;
+      const startParam = tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param || null;
+
+      let currentUser = null;
+      let currentChallengeId = null;
+      let currentInviteLink = null;
+      let currentInviteCode = null;
+
+      const toast = document.getElementById('toast');
+      const showToast = (text) => {
+        toast.textContent = text;
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+        clearTimeout(window.__weekupToastTimer);
+        window.__weekupToastTimer = setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateX(-50%) translateY(20px)';
+        }, 1800);
+      };
+
+      function setView(name) {
+        document.querySelectorAll('.view').forEach(v => {
+          v.classList.toggle('active', v.getAttribute('data-view') === name);
+        });
+        document.querySelectorAll('.nav button').forEach(b => {
+          b.classList.toggle('active', b.getAttribute('data-view-btn') === name);
+        });
+      }
+
+      document.querySelectorAll('.nav button').forEach(btn => {
+        btn.addEventListener('click', () => setView(btn.getAttribute('data-view-btn')));
+      });
+
+      document.getElementById('profileBtn').addEventListener('click', () => setView('profile'));
+
+      function patchProfile(user) {
+        if (!user) return;
+        document.getElementById('profileName').textContent = user.display_name || '—';
+        document.getElementById('profileUsername').textContent = user.username ? '@' + user.username : 'No username';
+        document.getElementById('profileLang').textContent = user.language || 'en';
+        document.getElementById('profileTz').textContent = user.timezone_name || 'UTC';
+      }
+
+      async function authTelegram() {
+        if (!initUser) return null;
+        try {
+          const res = await fetch(API_BASE + '/auth/telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              telegram_user_id: initUser.id,
+              username: initUser.username || null,
+              display_name: [initUser.first_name, initUser.last_name].filter(Boolean).join(' ') || initUser.username || 'Friend',
+              language: initUser.language_code === 'ru' ? 'ru' : 'en',
+              timezone_name: 'UTC'
+            })
+          });
+          if (!res.ok) throw new Error('auth_failed');
+          const data = await res.json();
+          currentUser = data.user;
+          patchProfile(currentUser);
+          return currentUser;
+        } catch (e) {
+          console.error(e);
+          showToast('Auth failed');
+          return null;
+        }
+      }
+
+      function renderChallenge(challenge, summary) {
+        if (!challenge || !summary) return;
+        currentChallengeId = challenge.id;
+        currentInviteCode = challenge.invite_code;
+        currentInviteLink = 'https://t.me/weekupbot?startapp=' + challenge.invite_code;
+
+        document.getElementById('homeTitle').textContent = challenge.title;
+        document.getElementById('homeSub').textContent = `${summary.leaderboard.length} players · ${summary.days_left} days left`;
+        document.getElementById('homeDaysLeft').textContent = `${summary.days_left} days left`;
+        document.getElementById('homeProgressText').textContent = `Leader total ${summary.leader_total.toLocaleString()}`;
+        document.getElementById('statRank').textContent = summary.your_rank ? '#' + summary.your_rank : '—';
+        document.getElementById('statToday').textContent = (summary.your_today || 0).toLocaleString();
+        document.getElementById('statGap').textContent = (summary.gap_to_leader || 0).toLocaleString();
+
+        document.getElementById('chipMode').textContent = challenge.mode === 'goal' ? 'Goal' : 'Race';
+        document.getElementById('chipTrust').textContent = challenge.trust_mode || 'Manual';
+        document.getElementById('chipMembers').textContent = `${summary.leaderboard.length} / ${challenge.max_members} players`;
+        document.getElementById('chipDays').textContent = `${challenge.duration_days || 7} days`;
+
+        document.getElementById('leaderTotal').textContent = summary.leader_total.toLocaleString();
+        document.getElementById('yourTotal').textContent = (summary.your_total || 0).toLocaleString();
+
+        document.getElementById('inviteLink').textContent = currentInviteLink;
+      }
+
+      function renderLeaderboard(lb) {
+        const container = document.getElementById('leaderboardList');
+        container.innerHTML = '';
+        lb.forEach((row, index) => {
+          const div = document.createElement('div');
+          div.className = 'row' + (index === 0 ? ' top' : '');
+          const rank = index + 1;
+          const isYou = currentUser && row.user_id === currentUser.id;
+          div.innerHTML = `
+            <div class="tiny"><strong>#${rank}</strong></div>
+            <div class="person">
+              <div class="avatar ${isYou ? 'you' : ''}">${(row.display_name || '?')[0] || '?'}</div>
+              <div>
+                <strong>${isYou ? 'You' : row.display_name || 'Player'}</strong>
+                <div class="tiny">${row.today ? row.today.toLocaleString() + ' today' : 'No entry today'}</div>
+              </div>
+            </div>
+            <div class="score">${row.total.toLocaleString()}</div>
+          `;
+          container.appendChild(div);
+        });
+      }
+
+      async function loadChallengeById(challengeId) {
+        if (!challengeId || !currentUser) return;
+        try {
+          const res = await fetch(`${API_BASE}/challenges/${challengeId}?user_id=${encodeURIComponent(currentUser.id)}`);
+          if (!res.ok) throw new Error('load_failed');
+          const data = await res.json();
+          renderChallenge(data.challenge, data.summary);
+          renderLeaderboard(data.leaderboard || data.summary.leaderboard || []);
+        } catch (e) {
+          console.error(e);
+          showToast('Failed to load challenge');
+        }
+      }
+
+      async function loadChallengeFromInvite(code) {
+        try {
+          const res = await fetch(`${API_BASE}/invites/${code}`);
+          if (!res.ok) throw new Error('invite_not_found');
+          const d = await res.json();
+          currentChallengeId = d.challenge_id;
+          currentInviteCode = d.invite_code;
+          currentInviteLink = `https://t.me/weekupbot?startapp=${d.invite_code}`;
+          document.getElementById('inviteLink').textContent = currentInviteLink;
+          document.getElementById('inviteSubText').textContent = `You were invited to “${d.title}”`;
+          return d.challenge_id;
+        } catch (e) {
+          console.error(e);
+          showToast('Invite not found');
+          return null;
+        }
+      }
+
+      async function acceptInviteIfNeeded() {
+        if (!currentInviteCode || !currentUser) return;
+        try {
+          const res = await fetch(`${API_BASE}/invites/${currentInviteCode}/accept`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: currentUser.id })
+          });
+          if (!res.ok) throw new Error('join_failed');
+          showToast('You joined this challenge');
+        } catch (e) {
+          console.error(e);
+          // if already member, backend returns existing membership, это ок
+        }
+      }
+
+      async function createChallenge() {
+        if (!currentUser) {
+          showToast('Auth first');
+          return;
+        }
+        const title = document.getElementById('titleInput').value.trim() || 'Morning Steps Club';
+        const type = document.getElementById('typeSelect').value;
+        const mode = document.getElementById('modeSelect').value;
+        const maxMembers = parseInt(document.getElementById('maxMembersInput').value || '8', 10);
+        const durationDays = parseInt(document.getElementById('durationInput').value || '7', 10);
+
+        try {
+          const res = await fetch(API_BASE + '/challenges', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              creator_user_id: currentUser.id,
+              title,
+              type,
+              mode,
+              trust_mode: 'manual',
+              duration_days: durationDays,
+              max_members: maxMembers
+            })
+          });
+          if (!res.ok) throw new Error('create_failed');
+          const data = await res.json();
+          const ch = data.challenge;
+          currentChallengeId = ch.id;
+          currentInviteCode = ch.invite_code;
+          currentInviteLink = data.invite_link;
+          showToast('Challenge created');
+          await loadChallengeById(ch.id);
+          setView('invite');
+        } catch (e) {
+          console.error(e);
+          showToast('Failed to create');
+        }
+      }
+
+      async function addManualEntry() {
+        if (!currentUser || !currentChallengeId) {
+          showToast('No challenge yet');
+          return;
+        }
+        const valueStr = prompt('Steps for today?');
+        if (!valueStr) return;
+        const value = parseInt(valueStr, 10);
+        if (isNaN(value) || value < 0) {
+          showToast('Enter a valid number');
+          return;
+        }
+        const today = new Date().toISOString().slice(0, 10);
+        try {
+          const res = await fetch(`${API_BASE}/challenges/${currentChallengeId}/entries/manual`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: currentUser.id,
+              entry_date: today,
+              value
+            })
+          });
+          if (!res.ok) throw new Error('entry_failed');
+          const data = await res.json();
+          showToast('Result added');
+          renderChallenge(
+            { id: currentChallengeId, ...data.summary.challenge },
+            data.summary
+          );
+          renderLeaderboard(data.leaderboard || data.summary.leaderboard || []);
+        } catch (e) {
+          console.error(e);
+          showToast('Failed to add');
+        }
+      }
+
+      document.getElementById('createChallengeBtn').addEventListener('click', createChallenge);
+      document.getElementById('addResultBtn').addEventListener('click', addManualEntry);
+      document.querySelector('[data-nav="invite"]').addEventListener('click', () => setView('invite'));
+
+      document.getElementById('copyInviteBtn').addEventListener('click', async () => {
+        if (!currentInviteLink) {
+          showToast('No invite yet');
+          return;
+        }
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(currentInviteLink);
+            showToast('Link copied');
+          } else {
+            showToast('Clipboard unavailable');
+          }
+        } catch (e) {
+          console.error(e);
+          showToast('Copy failed');
+        }
+      });
+
+      document.getElementById('shareInviteBtn').addEventListener('click', () => {
+        if (!currentInviteLink) {
+          showToast('No invite yet');
+          return;
+        }
+        const url = 'https://t.me/share/url?url=' + encodeURIComponent(currentInviteLink) +
+          '&text=' + encodeURIComponent('Join my 7‑day challenge on WeekUp');
+        window.open(url, '_blank', 'noopener,noreferrer');
+        showToast('Telegram share opened');
+      });
+
+      async function init() {
+        if (tg && tg.ready) tg.ready();
+        if (tg && tg.expand) tg.expand();
+
+        await authTelegram();
+
+        if (startParam) {
+          const cid = await loadChallengeFromInvite(startParam);
+          await acceptInviteIfNeeded();
+          if (cid) await loadChallengeById(cid);
+          setView('home');
+        } else {
+          setView('create');
+        }
+      }
+
+      init();
+    })();
+  </script>
 </body>
 </html>
